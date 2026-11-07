@@ -123,20 +123,17 @@ tests/                 pytest suite
 The **source code** is released under the [MIT License](LICENSE).
 Personal content (name, photos, avatar, CV, biography, certificates) is **not** covered and remains All Rights Reserved. If you reuse this project, replace it with your own.
 
-## 📊 GitHub Stats & Trophies
+## 📊 GitHub Stats
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=sanjidmolik&show_icons=true&theme=nightowl&hide_border=true&count_private=true&cache_seconds=86400" alt="sanjidmolik's GitHub Stats" width="49%" />
-  <img src="https://streak-stats.demolab.com/?user=sanjidmolik&theme=nightowl&hide_border=true&cache_seconds=86400" alt="sanjidmolik's GitHub Streak" width="49%" />
-</p>
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=sanjidmolik&layout=compact&theme=nightowl&hide_border=true&langs_count=10&cache_seconds=86400" alt="Top Languages" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=sanjidmolik&theme=tokyonight" alt="sanjidmolik's GitHub profile and contributions" width="100%" />
 </p>
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=sanjidmolik&theme=nightowl&no-frame=true&no-bg=true&margin-w=4&cache_seconds=86400" alt="sanjidmolik's GitHub Trophies" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=sanjidmolik&theme=tokyonight" alt="sanjidmolik's GitHub Stats" width="49%" />
+  <img src="https://streak-stats.demolab.com/?user=sanjidmolik&theme=tokyonight&hide_border=true" alt="sanjidmolik's GitHub Streak" width="49%" />
 </p>
 <p align="center">
-  <img height="280em" src="https://github-readme-activity-graph.vercel.app/graph?username=sanjidmolik&theme=nightowl&radius=10" alt="sanjidmolik's Activity Graph" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=sanjidmolik&theme=tokyonight" alt="Top languages by repository" width="49%" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=sanjidmolik&theme=tokyonight" alt="Top languages by commit" width="49%" />
 </p>
 
 ## 🔗 Connect with Me

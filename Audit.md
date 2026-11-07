@@ -29,7 +29,7 @@
 | Static security analysis (Python) | `bandit 1.9` on `portfolio/` and `app.py` (2,776 lines) | 0 high · 6 medium · 1 low, **all reviewed; false positives** (§4, F8) |
 | Dependency vulnerabilities | `pip-audit` on `requirements.txt` and the installed `.venv` | 0 in app dependencies; 1 in the `pip` tool itself → **fixed** |
 | Secrets & private-data scan | Pattern scan of every file that would be committed: real `.env` values, API-token formats (GitHub, AWS, OpenAI, Slack, private keys), password assignments, phone numbers, addresses, family names | 1 issue → **fixed** (F1) |
-| Git publish simulation | `git ls-files --others --exclude-standard` against a throw-away bare repo (no `.git` created in the project) | 70 files would be committed; all sensitive paths excluded |
+| Git publish simulation | `git ls-files --others --exclude-standard` against a throw-away bare repo (no `.git` created in the project) | 65 files would be committed; all sensitive paths excluded |
 | Live HTTP checks | `curl` against the running app: security headers, cookie flags, anonymous access to admin pages/APIs, `robots.txt` | Pass |
 | Link & accessibility crawl | Custom crawler: every internal link/asset on `/`, `/projects`, project pages, `/admin/login` | 15 URLs, 0 broken; 0 missing `alt`, 0 unlabeled buttons, 1 `<h1>` per page, no duplicate ids |
 | Automated tests | `pytest` (46 tests) | 46 passed |
@@ -124,8 +124,8 @@
 
 | Check | Result |
 |---|---|
-| Files that would be committed | **70**: source code, templates, CSS/JS, tests, `README.md`, `Audit.md`, `requirements*.txt`, `Procfile`, `.env.example`, `.gitignore`, `.claude/skills/*` |
-| Excluded by `.gitignore` | `.env` (secret key, admin password), `instance/` (database with password hashes and messages, plus backup DB), `static/uploads/` (personal media), `.venv/`, `venv/` (old broken env), `__pycache__/`, `.pytest_cache/`, `.claude/*` except skills |
+| Files that would be committed | **65**: source code, templates, CSS/JS, tests, `README.md`, `Audit.md`, `requirements*.txt`, `Procfile`, `.env.example`, `.gitignore` |
+| Excluded by `.gitignore` | `.env` (secret key, admin password), `instance/` (database with password hashes and messages, plus backup DB), `static/uploads/` (personal media), `.venv/`, `venv/` (old broken env), `__pycache__/`, `.pytest_cache/`, `.claude/` (local tooling, kept outside the project) |
 | Real `SECRET_KEY` or admin password in committed files | **None found** |
 | API tokens / private keys (GitHub, AWS, OpenAI, Slack, PEM) | **None found** |
 | Private personal data (phone, addresses, family names, DOB) | **None found** (after fix F1) |

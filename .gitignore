@@ -8,5 +8,4 @@ static/uploads/
 messages.json
 messages.json.imported
 .pytest_cache/
-.claude/*
-!.claude/skills/
+.claude/
