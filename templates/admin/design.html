@@ -1,0 +1,181 @@
+{% extends "admin/base.html" %}
+{% block title %}Design Center{% endblock %}
+{% block body_class %}design-page{% endblock %}
+{% block heading %}<h1>Design Center</h1><p class="muted">Changes appear instantly in the preview. Visitors only see them after you publish.</p>{% endblock %}
+{% block actions %}
+  <span class="save-state" data-save-state>{{ 'Unpublished changes' if dirty else 'Published' }}</span>
+{% endblock %}
+{% block content %}
+<script type="application/json" id="design-data">{{ draft | tojson }}</script>
+<script type="application/json" id="design-defaults">{{ defaults | tojson }}</script>
+<script type="application/json" id="design-presets">{{ presets | tojson }}</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Orbitron:wght@700&family=Nunito:wght@800&family=Rajdhani:wght@700&family=JetBrains+Mono:wght@700&family=Space+Grotesk:wght@700&family=DM+Sans:wght@700&display=swap">
+<div class="design-layout"
+     data-compile-url="{{ url_for('admin.design_compile') }}" data-draft-url="{{ url_for('admin.design_save_draft') }}"
+     data-publish-url="{{ url_for('admin.design_publish') }}" data-reset-url="{{ url_for('admin.design_reset') }}"
+     data-discard-url="{{ url_for('admin.design_discard') }}">
+  <form class="design-panel card" data-design-form>
+    <div class="tabs" role="tablist">
+      {% for t, ic in [('themes','sparkles'),('theme','sun'),('colors','palette'),('type','file'),('layout','dashboard'),('motion','motion'),('sections','layers')] %}
+      <button type="button" role="tab" class="tab {{ 'active' if loop.first }}" data-tab="{{ t }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ icon(ic) }}<span>{{ 'Mode' if t == 'theme' else t | title }}</span></button>
+      {% endfor %}
+    </div>
+
+    <div class="tab-panel" data-panel="themes">
+      <p class="hint">Restyle the whole portfolio in one click: colours, fonts, shapes, motion and background effects.
+        Your content and section order stay the same. Nothing goes live until you press <strong>Publish</strong>.</p>
+      <div class="preset-grid">
+        {% for p in presets %}
+        {% set c = p.design.colors %}{% set light = p.design.theme.mode == 'light' %}
+        <article class="preset-card {{ 'is-current' if draft.theme.skin == p.key }}" data-preset-card="{{ p.key }}">
+          <div class="preset-preview" style="background:{{ c.background_light if light else c.background }};color:{{ c.text_light if light else c.text }};border-radius:{{ [p.design.layout.radius, 14] | min }}px">
+            <span class="pp-bar" style="background:linear-gradient(90deg,{{ c.secondary }},{{ c.primary }},{{ c.accent }})"></span>
+            <span class="pp-title" style="font-family:{{ font_css[p.design.typography.heading_font][1] }}">Aa <em style="color:{{ c.secondary }}">Sanjid</em></span>
+            <span class="pp-lines"><i style="background:{{ c.text_light if light else c.text }}"></i><i style="background:{{ c.text_light if light else c.text }}"></i></span>
+            <span class="pp-btn" style="background:{{ c.primary }};border-radius:{{ [p.design.layout.radius, 12] | min }}px"></span>
+            <span class="pp-swatches">{% for k in ['primary', 'secondary', 'accent'] %}<b style="background:{{ c[k] }}"></b>{% endfor %}</span>
+          </div>
+          <div class="preset-meta">
+            <h3>{{ p.name }} {% if draft.theme.skin == p.key %}<span class="pill pill-ok">Current</span>{% endif %}</h3>
+            <p class="hint">{{ p.tagline }}</p>
+            <p class="preset-tags mono">{{ p.design.typography.heading_font }} &middot; {{ 'Light' if light else 'Dark' }} &middot; {{ p.design.layout.card_style | title }} cards</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm btn-block" data-apply-preset="{{ p.key }}">{{ icon('sparkles') }} Apply theme</button>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="theme" hidden>
+      <input type="hidden" name="theme.skin" value="{{ draft.theme.skin }}">
+      <fieldset><legend>Theme mode</legend>
+        <div class="seg">
+          {% for m in choices['theme.mode'] %}<label><input type="radio" name="theme.mode" value="{{ m }}" {% if draft.theme.mode == m %}checked{% endif %}><span>{{ m | title }}</span></label>{% endfor %}
+        </div>
+        <p class="hint">"System" follows each visitor's device setting.</p>
+      </fieldset>
+      <fieldset><legend>Avatar style</legend>
+        <div class="seg">
+          {% for v, l in [('illustrated', 'Illustrated'), ('photo', 'Photo')] %}<label><input type="radio" name="identity.avatar_style" value="{{ v }}" {% if draft.identity.avatar_style == v %}checked{% endif %}><span>{{ l }}</span></label>{% endfor %}
+        </div>
+        <p class="hint">Used on the access pass and the contact banner. The hero always shows your real Profile photo (if one is uploaded). "Photo" uses that image everywhere.</p>
+      </fieldset>
+      <label class="check"><input type="checkbox" name="theme.allow_toggle" {% if draft.theme.allow_toggle %}checked{% endif %}><span class="switch-ui"></span>Let visitors switch light/dark</label>
+    </div>
+
+    <div class="tab-panel" data-panel="colors" hidden>
+      <div class="presets">
+        <p class="hint">Quick palettes</p>
+        <div class="preset-row">
+          {% for name, p, s, a, bg, sf in [
+            ('Signal', '#3b82f6', '#22d3ee', '#a78bfa', '#070b14', '#0d1424'),
+            ('Cyber', '#06b6d4', '#22d3ee', '#818cf8', '#05080f', '#0b1220'),
+            ('Ultraviolet', '#7c3aed', '#38bdf8', '#c084fc', '#0a0712', '#140f22'),
+            ('Matrix', '#10b981', '#34d399', '#22d3ee', '#050b09', '#0b1612'),
+            ('On Air', '#e11d48', '#fb7185', '#f59e0b', '#0b0709', '#160d11'),
+          ] %}
+          <button type="button" class="preset" data-preset='{{ {"primary": p, "secondary": s, "accent": a, "background": bg, "surface": sf} | tojson }}' title="{{ name }}">
+            <span style="background:linear-gradient(135deg,{{ s }},{{ p }} 60%,{{ a }})"></span>{{ name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+      {% for key, label in [('primary','Primary'),('secondary','Secondary'),('accent','Accent')] %}
+      <label class="color-row"><span>{{ label }}</span><input type="color" name="colors.{{ key }}" value="{{ draft.colors[key] }}"><code data-hex>{{ draft.colors[key] }}</code></label>
+      {% endfor %}
+      <p class="sub-legend">Dark theme</p>
+      {% for key, label in [('background','Background'),('surface','Card surface'),('text','Text')] %}
+      <label class="color-row"><span>{{ label }}</span><input type="color" name="colors.{{ key }}" value="{{ draft.colors[key] }}"><code data-hex>{{ draft.colors[key] }}</code></label>
+      {% endfor %}
+      <p class="sub-legend">Light theme</p>
+      {% for key, label in [('background_light','Background'),('surface_light','Card surface'),('text_light','Text')] %}
+      <label class="color-row"><span>{{ label }}</span><input type="color" name="colors.{{ key }}" value="{{ draft.colors[key] }}"><code data-hex>{{ draft.colors[key] }}</code></label>
+      {% endfor %}
+      <p class="contrast-warn hint" data-contrast hidden></p>
+    </div>
+
+    <div class="tab-panel" data-panel="type" hidden>
+      <label class="f"><span>Heading font</span><select name="typography.heading_font">{% for f in fonts %}<option {% if draft.typography.heading_font == f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select></label>
+      <label class="f"><span>Body font</span><select name="typography.body_font">{% for f in fonts %}<option {% if draft.typography.body_font == f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select></label>
+      <label class="range"><span>Base font size <output>{{ draft.typography.base_size }}px</output></span><input type="range" name="typography.base_size" min="14" max="20" step="1" value="{{ draft.typography.base_size }}" data-unit="px"></label>
+      <label class="range"><span>Heading weight <output>{{ draft.typography.heading_weight }}</output></span><input type="range" name="typography.heading_weight" min="400" max="800" step="100" value="{{ draft.typography.heading_weight }}"></label>
+    </div>
+
+    <div class="tab-panel" data-panel="layout" hidden>
+      <fieldset><legend>Section spacing</legend><div class="seg">
+        {% for v in choices['layout.section_spacing'] %}<label><input type="radio" name="layout.section_spacing" value="{{ v }}" {% if draft.layout.section_spacing == v %}checked{% endif %}><span>{{ v | title }}</span></label>{% endfor %}
+      </div></fieldset>
+      <label class="range"><span>Container width <output>{{ draft.layout.container_width }}px</output></span><input type="range" name="layout.container_width" min="960" max="1480" step="20" value="{{ draft.layout.container_width }}" data-unit="px"></label>
+      <label class="range"><span>Corner radius <output>{{ draft.layout.radius }}px</output></span><input type="range" name="layout.radius" min="0" max="32" step="1" value="{{ draft.layout.radius }}" data-unit="px"></label>
+      <fieldset><legend>Card style</legend><div class="seg">
+        {% for v in choices['layout.card_style'] %}<label><input type="radio" name="layout.card_style" value="{{ v }}" {% if draft.layout.card_style == v %}checked{% endif %}><span>{{ v | title }}</span></label>{% endfor %}
+      </div></fieldset>
+      <fieldset><legend>Navigation style</legend><div class="seg">
+        {% for v in choices['layout.nav_style'] %}<label><input type="radio" name="layout.nav_style" value="{{ v }}" {% if draft.layout.nav_style == v %}checked{% endif %}><span>{{ v | title }}</span></label>{% endfor %}
+      </div></fieldset>
+    </div>
+
+    <div class="tab-panel" data-panel="motion" hidden>
+      <label class="check"><input type="checkbox" name="animation.enabled" {% if draft.animation.enabled %}checked{% endif %}><span class="switch-ui"></span>Enable animations</label>
+      <label class="range"><span>Animation speed <output>{{ draft.animation.speed }}x</output></span><input type="range" name="animation.speed" min="0.5" max="2" step="0.1" value="{{ draft.animation.speed }}" data-unit="x"></label>
+      <fieldset><legend>Intensity</legend><div class="seg">
+        {% for v in choices['animation.intensity'] %}<label><input type="radio" name="animation.intensity" value="{{ v }}" {% if draft.animation.intensity == v %}checked{% endif %}><span>{{ v | title }}</span></label>{% endfor %}
+      </div></fieldset>
+      <fieldset><legend>Page transition</legend><div class="seg">
+        {% for v in choices['animation.page_transition'] %}<label><input type="radio" name="animation.page_transition" value="{{ v }}" {% if draft.animation.page_transition == v %}checked{% endif %}><span>{{ v | title }}</span></label>{% endfor %}
+      </div></fieldset>
+      <fieldset><legend>Scroll reveal</legend><div class="seg seg-wrap">
+        {% for v in choices['animation.scroll_reveal'] %}<label><input type="radio" name="animation.scroll_reveal" value="{{ v }}" {% if draft.animation.scroll_reveal == v %}checked{% endif %}><span>{{ v | replace('-', ' ') | title }}</span></label>{% endfor %}
+      </div></fieldset>
+      <label class="check"><input type="checkbox" name="animation.background_effects" {% if draft.animation.background_effects %}checked{% endif %}><span class="switch-ui"></span>Background effects</label>
+      <label class="check"><input type="checkbox" name="animation.cursor_effects" {% if draft.animation.cursor_effects %}checked{% endif %}><span class="switch-ui"></span>Cursor glow</label>
+      <label class="check"><input type="checkbox" name="animation.loader" {% if draft.animation.loader %}checked{% endif %}><span class="switch-ui"></span>Loading animation</label>
+      <p class="hint">Visitors with "reduce motion" enabled on their device always get a calm, animation-free version.</p>
+    </div>
+
+    <div class="tab-panel" data-panel="sections" hidden id="sections">
+      <p class="hint">Drag to reorder. Sections without published content are hidden automatically.</p>
+      <ul class="section-editor" data-section-list>
+        {% for s in draft.sections %}
+        <li class="sec-row {{ 'locked' if s.key == 'hero' }}" data-key="{{ s.key }}" {% if s.key != 'hero' %}draggable="true"{% endif %}>
+          <div class="sec-top">
+            <span class="drag" aria-hidden="true">{{ icon('grip') if s.key != 'hero' else icon('lock') }}</span>
+            <code>{{ s.key }}</code>
+            {% if s.key != 'hero' %}
+            <span class="sec-move"><button type="button" class="mini" data-sec-up aria-label="Move {{ s.key }} up">{{ icon('chevron-up') }}</button><button type="button" class="mini" data-sec-down aria-label="Move {{ s.key }} down">{{ icon('chevron-down') }}</button></span>
+            <label class="check small"><input type="checkbox" data-sec-enabled {% if s.enabled %}checked{% endif %}><span class="switch-ui"></span><span class="sr-only">Show {{ s.key }}</span></label>
+            {% endif %}
+          </div>
+          {% if s.key != 'hero' %}
+          <input data-sec-title value="{{ s.title }}" maxlength="80" aria-label="{{ s.key }} title" placeholder="Title">
+          <input data-sec-subtitle value="{{ s.subtitle }}" maxlength="240" aria-label="{{ s.key }} subtitle" placeholder="Subtitle (optional)">
+          {% else %}<p class="hint">Always shown first.</p>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="design-actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-act="reset" title="Load default design into the draft">{{ icon('refresh') }} Reset to default</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-act="discard" title="Throw away draft changes">Discard draft</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-act="save">Save draft</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-act="preview">{{ icon('external') }} Preview changes</button>
+      <button type="button" class="btn btn-primary btn-sm" data-act="publish">{{ icon('broadcast') }} Publish</button>
+    </div>
+  </form>
+
+  <section class="preview-pane card" aria-label="Live preview">
+    <div class="preview-bar">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="mono muted">Live preview (draft)</span>
+      <div class="seg seg-sm" role="group" aria-label="Preview size">
+        <button type="button" class="active" data-device="desktop">Desktop</button>
+        <button type="button" data-device="tablet">Tablet</button>
+        <button type="button" data-device="mobile">Mobile</button>
+      </div>
+    </div>
+    <div class="preview-stage" data-stage>
+      <iframe src="{{ url_for('public.home', preview='draft') }}" title="Portfolio preview" data-preview-frame loading="eager"></iframe>
+    </div>
+  </section>
+</div>
+{% endblock %}

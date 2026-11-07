@@ -1,0 +1,5 @@
+<header class="section-head" data-reveal>
+  <p class="eyebrow mono"><span class="ch">CH {{ channel }}</span><span class="eyebrow-line"></span>{{ section.key | upper }}</p>
+  <h2 class="section-title" id="{{ section.key }}-title" data-section-title>{{ section.title }}</h2>
+  <p class="section-sub" data-section-subtitle {% if not section.subtitle %}hidden{% endif %}>{{ section.subtitle }}</p>
+</header>

@@ -1,0 +1,15 @@
+<section class="section github" id="github" aria-labelledby="github-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+    <div class="gh-layout">
+      {% include "public/_access_pass.html" %}
+      <div class="gh-mount" data-github-src="{{ url_for('public.github_fragment') }}" aria-busy="true" aria-live="polite">
+        <div class="gh-skeleton" aria-hidden="true">
+          <div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div>
+          <div class="sk sk-wide"></div>
+        </div>
+        <noscript><p><a href="https://github.com/{{ profile.github_username }}">View my GitHub profile</a></p></noscript>
+      </div>
+    </div>
+  </div>
+</section>

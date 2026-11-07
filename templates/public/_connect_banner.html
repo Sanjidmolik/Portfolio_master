@@ -1,0 +1,98 @@
+{#- "Open a channel" banner: original control-room scene + social cards. -#}
+<div class="connect card" data-reveal>
+  <div class="scene" aria-hidden="true">
+    <svg class="scene-wall" viewBox="0 0 560 360" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="sceneGlow" cx=".5" cy=".35" r=".6">
+          <stop offset="0" stop-color="var(--primary)" stop-opacity=".35"/><stop offset="1" stop-color="var(--bg)" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="sceneScreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0d1a33"/><stop offset="1" stop-color="#060b16"/>
+        </linearGradient>
+      </defs>
+      <rect width="560" height="360" fill="#05080f"/>
+      <rect width="560" height="360" fill="url(#sceneGlow)"/>
+      <!-- monitor wall: 3 x 2 -->
+      {% for row in range(2) %}{% for col in range(3) %}
+      {% set x = 52 + col * 156 %}{% set y = 26 + row * 92 %}
+      <g class="wall-screen ws-{{ row * 3 + col }}">
+        <rect x="{{ x }}" y="{{ y }}" width="144" height="80" rx="6" fill="#0b0f19" stroke="rgb(var(--text-rgb) / .14)"/>
+        <rect x="{{ x + 5 }}" y="{{ y + 5 }}" width="134" height="70" rx="3" fill="url(#sceneScreen)"/>
+      </g>
+      {% endfor %}{% endfor %}
+      <!-- screen 0: colour bars -->
+      <!-- screen 0: playout playlist (automation rundown with coloured rows) -->
+      <rect x="57" y="31" width="134" height="9" fill="#1f2937"/>
+      <text x="61" y="38" fill="#9ca3af" font-family="var(--font-mono)" font-size="6" letter-spacing="1">PLAYLIST &#183; MCR</text>
+      <text x="152" y="38" fill="#e5e7eb" font-family="var(--font-mono)" font-size="6">00:00:00</text>
+      {% for c in ['#22c55e', '#ef4444', '#a3e635', '#facc15', '#e5e7eb', '#a855f7', '#fb923c'] %}
+      <g class="{{ 'pl-live' if loop.index0 == 1 }}">
+        <rect x="57" y="{{ 41 + loop.index0 * 8.4 }}" width="134" height="7.6" fill="{{ c }}" opacity="{{ 0.95 if loop.index0 == 1 else 0.8 }}"/>
+        <rect x="60" y="{{ 43.4 + loop.index0 * 8.4 }}" width="22" height="2.8" rx="1" fill="#111827" opacity=".7"/>
+        <rect x="88" y="{{ 43.4 + loop.index0 * 8.4 }}" width="{{ [44, 30, 52, 38, 46, 34, 40][loop.index0] }}" height="2.8" rx="1" fill="#111827" opacity=".55"/>
+      </g>
+      {% endfor %}
+      <!-- screen 1: programme feed + waveform -->
+      <rect x="213" y="35" width="24" height="10" rx="2" fill="#e11d48"/>
+      <text x="216" y="43" fill="#fff" font-family="var(--font-mono)" font-size="7" font-weight="700">PGM</text>
+      <rect x="241" y="35" width="24" height="10" rx="2" fill="#16a34a"/>
+      <text x="244" y="43" fill="#fff" font-family="var(--font-mono)" font-size="7" font-weight="700">PVW</text>
+      <path class="scene-wave" d="M213 70 C228 44 240 96 255 70 S282 44 297 70 S324 96 339 70" fill="none" stroke="var(--secondary)" stroke-width="2.5"/>
+      <path d="M213 70 H339" stroke="rgb(var(--text-rgb) / .12)"/>
+      <!-- screen 2: ON AIR -->
+      <circle class="scene-tally" cx="400" cy="66" r="7" fill="#ff3b4e"/>
+      <text x="414" y="72" fill="#ff6b7a" font-family="var(--font-mono)" font-size="17" font-weight="700" letter-spacing="2">ON AIR</text>
+      <!-- screen 3: code -->
+      {% for w in [70, 96, 52, 110, 84] %}
+      <rect x="{{ 63 + (loop.index0 % 2) * 10 }}" y="{{ 128 + loop.index0 * 12 }}" width="{{ w }}" height="5" rx="2.5" fill="{{ 'var(--secondary)' if loop.index0 % 2 else 'var(--accent)' }}" opacity=".7"/>
+      {% endfor %}
+      <!-- screen 4: colour bars (mostly behind the avatar) -->
+      {% for c in ['#c0c0c0','#c0c000','#00c0c0','#00c000','#c000c0','#c00000','#0000c0'] %}
+      <rect x="{{ 213 + loop.index0 * 19.14 }}" y="123" width="19.2" height="52" fill="{{ c }}" opacity=".6"/>
+      {% endfor %}
+      <!-- screen 5: shield -->
+      <path d="M442 136 C452 142 462 144 470 144 L470 160 C470 172 458 180 442 186 C426 180 414 172 414 160 L414 144 C422 144 432 142 442 136 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+      <path d="M432 160 L440 168 L454 152" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+
+    <div class="scene-avatar">
+      <span class="av-art">{% set uid = 'scene' %}{% include "public/_avatar_art.html" %}</span>
+      <span class="av-photo">
+        {% if profile.avatar %}<img src="{{ url_for('static', filename=profile.avatar) }}" alt="" width="200" height="200" loading="lazy" decoding="async">
+        {% else %}<span class="avatar-initials"><span>{{ profile.initials }}</span></span>{% endif %}
+      </span>
+    </div>
+
+    <svg class="scene-desk" viewBox="0 0 560 120" preserveAspectRatio="xMidYMax slice">
+      <path d="M0 40 L560 40 L560 120 L0 120 Z" fill="#0a0e17"/>
+      <path d="M0 40 L560 40 L560 48 L0 48 Z" fill="rgb(var(--primary-rgb) / .5)"/>
+      {% for i in range(14) %}
+      <rect x="{{ 70 + i * 30 }}" y="62" width="20" height="10" rx="2" fill="{{ ['#ff3b4e', 'var(--secondary)', '#34d399', '#fbbf24', 'var(--primary)'][i % 5] }}" opacity="{{ 0.9 if i % 3 == 0 else 0.35 }}" class="{{ 'desk-blink' if i % 4 == 1 }}"/>
+      {% endfor %}
+      {% for i in range(8) %}
+      <rect x="{{ 120 + i * 42 }}" y="84" width="4" height="26" rx="2" fill="rgb(var(--text-rgb) / .2)"/>
+      <rect x="{{ 114 + i * 42 }}" y="{{ 88 + (i * 7) % 16 }}" width="16" height="7" rx="2" fill="rgb(var(--text-rgb) / .55)"/>
+      {% endfor %}
+    </svg>
+
+    <span class="scene-orb orb-py"><span class="si-mask" style="--si:url(https://cdn.simpleicons.org/python)"></span></span>
+    <span class="scene-orb orb-air">{{ icon('broadcast') }}</span>
+  </div>
+
+  <div class="connect-body">
+    <p class="dash-eyebrow mono">{{ content.contact_banner_eyebrow }}</p>
+    <h3 class="connect-title">{{ content.contact_banner_title }}</h3>
+    {% if socials %}
+    <ul class="soc-grid" aria-label="Social profiles">
+      {% for s in socials %}
+      <li><a class="soc-card soc-{{ s.platform }}" href="{{ s.url }}" {% if not s.url.startswith('mailto:') %}target="_blank" rel="noopener noreferrer"{% endif %} data-magnetic>
+        <span class="soc-icon">{{ icon(s.platform) }}</span>
+        <span class="soc-text"><span class="soc-name">{{ s.label or s.platform | title }}</span>
+          {% if s.handle %}<span class="soc-handle mono">{{ s.handle }}</span>{% endif %}</span>
+      </a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if profile.availability %}<p class="connect-note mono"><span class="diamond" aria-hidden="true"></span>{{ profile.availability }}</p>{% endif %}
+  </div>
+</div>

@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}<h1>Dashboard</h1>{% endblock %}
+{% block actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('admin.resource_edit', key='projects') }}">{{ icon('plus') }} New project</a>{% endblock %}
+{% block content %}
+<section class="stat-grid">
+  {% for label, total, live, key, ic in stats %}
+  <a class="stat card" href="{{ url_for('admin.resource_list', key=key) }}">
+    <span class="stat-icon">{{ icon(ic) }}</span>
+    <span class="stat-num">{{ total }}</span>
+    <span class="stat-label">{{ label }}</span>
+    <span class="stat-sub">{{ live }} published{% if total - live %} · {{ total - live }} hidden{% endif %}</span>
+  </a>
+  {% endfor %}
+  <a class="stat card" href="{{ url_for('admin.design') }}">
+    <span class="stat-icon">{{ icon('layers') }}</span>
+    <span class="stat-num">{{ published_sections }}<small>/{{ sections|length }}</small></span>
+    <span class="stat-label">Sections enabled</span>
+    <span class="stat-sub">{{ 'Unpublished design changes' if drafts_pending else 'Design is up to date' }}</span>
+  </a>
+</section>
+
+<div class="dash-grid">
+  <section class="card panel">
+    <header class="panel-head"><h2>Portfolio configuration</h2>
+      {% set done = checks | selectattr(1) | list | length %}
+      <span class="pill {{ 'pill-ok' if done == checks|length }}">{{ done }}/{{ checks|length }} complete</span></header>
+    <div class="progress"><span style="width: {{ (done / checks|length * 100) | round }}%"></span></div>
+    <ul class="checklist">
+      {% for label, ok in checks %}
+      <li class="{{ 'ok' if ok }}">{{ icon('check' if ok else 'clock') }} {{ label }}</li>
+      {% endfor %}
+    </ul>
+    {% if hidden_skills %}
+    <p class="note">{{ icon('sparkles') }} <span><strong>{{ hidden_skills }} skills are hidden drafts.</strong> Review them in <a href="{{ url_for('admin.resource_list', key='skills') }}">Skills</a> and switch on the ones you want to show.</span></p>
+    {% endif %}
+  </section>
+
+  <section class="card panel">
+    <header class="panel-head"><h2>Recent messages</h2><a href="{{ url_for('admin.messages') }}" class="muted">View all</a></header>
+    {% if recent_messages %}
+    <ul class="msg-mini">
+      {% for m in recent_messages %}
+      <li class="{{ 'unread' if not m.is_read }}"><strong>{{ m.name }}</strong><span class="muted">{{ m.subject or (m.body | truncate(60)) }}</span><time class="muted">{{ m.created_at.strftime('%d %b') }}</time></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">No messages yet. They'll appear here when visitors use your contact form.</p>{% endif %}
+  </section>
+
+  <section class="card panel">
+    <header class="panel-head"><h2>Sections</h2><a href="{{ url_for('admin.design') }}#sections" class="muted">Manage</a></header>
+    <ul class="section-pills">
+      {% for s in sections %}<li class="{{ 'on' if s.enabled else 'off' }}">{{ icon('eye' if s.enabled else 'eye-off') }} {{ s.title }}</li>{% endfor %}
+    </ul>
+  </section>
+
+  <section class="card panel">
+    <header class="panel-head"><h2>Quick actions</h2></header>
+    <div class="quick">
+      <a class="btn btn-ghost" href="{{ url_for('admin.profile') }}">{{ icon('user') }} Edit profile</a>
+      <a class="btn btn-ghost" href="{{ url_for('admin.site_content') }}">{{ icon('file') }} Edit site text</a>
+      <a class="btn btn-ghost" href="{{ url_for('admin.resource_edit', key='skills') }}">{{ icon('plus') }} Add skill</a>
+      <a class="btn btn-ghost" href="{{ url_for('admin.resource_edit', key='experience') }}">{{ icon('plus') }} Add experience</a>
+      <a class="btn btn-ghost" href="{{ url_for('admin.design') }}">{{ icon('palette') }} Customize design</a>
+      <form method="post" action="{{ url_for('admin.github_refresh') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-ghost" type="submit">{{ icon('refresh') }} Refresh GitHub data</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

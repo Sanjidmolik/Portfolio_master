@@ -1,0 +1,48 @@
+{#- MCR access pass: lanyard ID card built from published profile/experience data. -#}
+{%- set handle = profile.github_username or (profile.short_name or profile.full_name.split(' ')[0]) | lower -%}
+<div class="pass-wrap" data-reveal>
+  <div class="pass-swing" data-pass>
+    <div class="lanyard" aria-hidden="true">
+      <span class="lanyard-text mono">{% if content.pass_lanyard %}{{ content.pass_lanyard }} &middot; {{ content.pass_lanyard }}{% else %}{{ (profile.short_name or 'ON AIR') | upper }} &middot; {{ content.pass_zone }} &middot; {{ content.pass_stamp }} &middot; {{ (profile.short_name or 'ON AIR') | upper }} &middot; {{ content.pass_zone }}{% endif %}</span>
+    </div>
+    <div class="pass-clip" aria-hidden="true"><span></span></div>
+    <article class="pass" aria-label="Access pass: {{ profile.full_name }}" data-tilt>
+      <header class="pass-head mono">
+        <span class="pass-org">{{ icon('broadcast') }} {{ content.pass_header }}</span>
+        {% if content.pass_zone %}<span class="pass-zone">{{ content.pass_zone }}</span>{% endif %}
+      </header>
+      <div class="pass-photo-row">
+        <div class="pass-photo">
+          <span class="av-art">{% set uid = 'pass' %}{% include "public/_avatar_art.html" %}</span>
+          <span class="av-photo">
+            {% if profile.avatar %}<img src="{{ url_for('static', filename=profile.avatar) }}" alt="" width="160" height="160" loading="lazy" decoding="async">
+            {% else %}<span class="avatar-initials"><span>{{ profile.initials }}</span></span>{% endif %}
+          </span>
+        </div>
+        {% if content.pass_stamp %}{% set st = content.pass_stamp.split(' ', 1) %}<span class="pass-stamp mono" aria-hidden="true"><span class="tally"></span>{{ st[0] }}{% if st|length > 1 %}<br>{{ st[1] }}{% endif %}</span>{% endif %}
+      </div>
+      <h3 class="pass-name">{{ profile.full_name }}</h3>
+      {% if access.role %}<p class="pass-role mono">{{ access.role }}</p>{% endif %}
+      <dl class="pass-fields">
+        {% if access.station %}<div><dt class="mono">{{ content.pass_station_label }}</dt><dd>{{ access.station }}</dd></div>{% endif %}
+        {% if profile.location %}<div><dt class="mono">{{ content.pass_base_label }}</dt><dd>{{ profile.location.split(',')[0] }}</dd></div>{% endif %}
+        {% if access.study %}<div><dt class="mono">{{ content.pass_study_label }}</dt><dd>{{ access.study }}</dd></div>{% endif %}
+        {% if access.since %}<div><dt class="mono">{{ content.pass_since_label }}</dt><dd>{{ access.since }}</dd></div>{% endif %}
+      </dl>
+      <footer class="pass-foot">
+        <svg class="pass-barcode" viewBox="0 0 120 26" preserveAspectRatio="none" aria-hidden="true">
+          {%- set ns = namespace(x=0) -%}
+          {#- decorative only: bar widths/gaps derived from the name so the pattern is stable -#}
+          {%- for ch in (profile.full_name ~ handle) | list -%}
+            {%- if ns.x < 118 -%}<rect x="{{ ns.x }}" y="0" width="{{ 2 if ch | lower in 'aeiou' else 1 }}" height="26"/>{%- endif -%}
+            {%- set ns.x = ns.x + 2 + (loop.index * 7) % 4 -%}
+          {%- endfor -%}
+        </svg>
+        <div class="pass-meta mono">
+          <span class="pass-status {{ 'is-on' if access.on_duty }}"><span class="dot"></span>{{ content.pass_on_duty if access.on_duty else content.pass_available }}</span>
+          <span>@{{ handle }}</span>
+        </div>
+      </footer>
+    </article>
+  </div>
+</div>

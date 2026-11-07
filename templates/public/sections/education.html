@@ -1,0 +1,64 @@
+{% macro yr(d) %}{{ d[:4] if d else '' }}{% endmacro %}
+{% set all_certs = certifications + awards %}
+{% set kind_meta = {
+  'certification': ('certificate', content.cert_filter_certification),
+  'course': ('file', content.cert_filter_course),
+  'award': ('award', content.cert_filter_award),
+} %}
+<section class="section education" id="education" aria-labelledby="education-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+
+    {% if education %}
+    <h3 class="col-title mono">{{ icon('graduation') }} {{ content.edu_heading }}</h3>
+    <div class="edu-cards">
+      {% for e in education %}
+      <article class="edu-card card" data-reveal style="--i:{{ loop.index0 % 3 }}" data-spotlight>
+        <div class="edu-top">
+          {% if e.logo %}<img class="edu-logo" src="{{ url_for('static', filename=e.logo) }}" alt="{{ e.institution }} logo" width="44" height="44" loading="lazy">
+          {% else %}<span class="edu-icon">{{ icon('graduation') }}</span>{% endif %}
+          <span class="mono edu-period">{{ yr(e.start_date) }}{% if e.start_date %} &ndash; {% endif %}{{ 'Present' if e.is_current else yr(e.end_date) }}</span>
+        </div>
+        <h4>{{ e.degree }}</h4>
+        <p class="edu-inst">{{ e.institution }}</p>
+        {% if e.field %}<p class="edu-field">{{ e.field }}</p>{% endif %}
+        {% if e.description %}<p class="muted edu-desc">{{ e.description }}</p>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if all_certs %}
+    {% set kinds = all_certs | map(attribute='kind') | unique | list %}
+    <div class="cert-head" data-reveal>
+      <h3 class="col-title mono">{{ icon('certificate') }} {{ content.certs_heading }} <span class="count-pill">{{ all_certs | length }}</span></h3>
+      {% if kinds | length > 1 %}
+      <div class="chip-filter" role="group" aria-label="Filter certificates">
+        <button type="button" class="chip is-active" data-cert-filter="all" aria-pressed="true">{{ content.cert_filter_all }} <span class="count">{{ all_certs | length }}</span></button>
+        {% for k in ['certification', 'course', 'award'] if k in kinds %}
+        <button type="button" class="chip" data-cert-filter="{{ k }}" aria-pressed="false">{{ kind_meta[k][1] }} <span class="count">{{ all_certs | selectattr('kind', 'eq', k) | list | length }}</span></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <ul class="cert-grid">
+      {% for c in all_certs %}
+      {% set meta = kind_meta.get(c.kind, ('certificate', c.kind | title)) %}
+      <li class="cert-card card kind-{{ c.kind }}" data-kind="{{ c.kind }}" data-reveal style="--i:{{ loop.index0 % 3 }}" data-spotlight>
+        <div class="cert-top">
+          <span class="cert-icon">{{ icon(meta[0]) }}</span>
+          <span class="cert-kind mono">{{ meta[1] }}</span>
+          {% if c.date %}<span class="cert-year mono">{{ c.date[:4] }}</span>{% endif %}
+        </div>
+        <h4>{{ c.name }}</h4>
+        {% if c.issuer %}<p class="cert-issuer">{{ c.issuer }}</p>{% endif %}
+        {% if c.description %}<p class="cert-desc">{{ c.description }}</p>{% endif %}
+        {% if c.credential_url %}
+        <a class="cert-link" href="{{ c.credential_url }}" target="_blank" rel="noopener noreferrer">{{ content.cert_view_link }} {{ icon('arrow-up-right') }}</a>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,27 @@
+{% extends "public/base.html" %}
+{% block title %}Projects{% endblock %}
+{% block description %}Projects by {{ profile.full_name }}: software, security and broadcast technology work.{% endblock %}
+{% block content %}
+<section class="section page-hero">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow mono"><span class="ch">ARCHIVE</span><span class="eyebrow-line"></span>PROJECTS</p>
+      <h1 class="section-title">{{ content.projects_page_title }}</h1>
+      <p class="section-sub">{{ content.projects_page_intro }}</p>
+    </header>
+    {% if techs | length > 1 %}
+    <div class="chip-filter" role="group" aria-label="Filter projects by technology" data-reveal>
+      <button type="button" class="chip is-active" data-project-filter="all" aria-pressed="true">All</button>
+      {% for t in techs %}<button type="button" class="chip" data-project-filter="{{ t }}" aria-pressed="false">{{ t }}</button>{% endfor %}
+    </div>
+    {% endif %}
+    {% if items %}
+    <div class="project-grid" data-project-grid>
+      {% for p in items %}{% set idx = loop.index0 %}{% include "public/_project_card.html" %}{% endfor %}
+    </div>
+    {% else %}
+    <p class="empty card">{{ content.projects_empty }}</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

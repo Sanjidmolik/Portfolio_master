@@ -1,0 +1,87 @@
+{#- Original illustrated portrait of Sanjid, drawn from his MCR photo:
+    blue hoodie, broadcast headset with mic boom, short beard, big smile.
+    Usage: {% set uid = 'x' %}{% include "public/_avatar_art.html" %} - uid keeps gradient ids unique. -#}
+{%- set u = uid | default('av') -%}
+<svg class="avatar-art" viewBox="0 0 240 240" role="img" aria-label="Illustrated portrait of {{ profile.full_name }}">
+  <defs>
+    <linearGradient id="{{ u }}-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--primary)" stop-opacity=".35"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".18"/>
+    </linearGradient>
+    <linearGradient id="{{ u }}-skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c98a5c"/><stop offset="1" stop-color="#b0744b"/>
+    </linearGradient>
+    <linearGradient id="{{ u }}-hoodie" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f63de"/><stop offset="1" stop-color="#1c46b4"/>
+    </linearGradient>
+    <linearGradient id="{{ u }}-hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b211d"/><stop offset="1" stop-color="#110c0a"/>
+    </linearGradient>
+    <radialGradient id="{{ u }}-glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="var(--secondary)" stop-opacity=".9"/><stop offset="1" stop-color="var(--secondary)" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect class="avatar-art-bg" width="240" height="240" fill="url(#{{ u }}-bg)"/>
+
+  <!-- hoodie body -->
+  <path d="M10 240 C16 202 48 184 90 176 L150 176 C192 184 224 202 230 240 Z" fill="url(#{{ u }}-hoodie)"/>
+  <path d="M58 240 C60 222 64 208 70 198" fill="none" stroke="#173a96" stroke-width="2" opacity=".7"/>
+  <path d="M182 240 C180 222 176 208 170 198" fill="none" stroke="#173a96" stroke-width="2" opacity=".7"/>
+  <!-- neck -->
+  <path d="M102 146 L138 146 L140 180 Q120 192 100 180 Z" fill="#9f673f"/>
+  <!-- hood collar around the neck -->
+  <path d="M80 182 C82 164 98 156 106 158 C104 168 108 182 120 188 C132 182 136 168 134 158 C142 156 158 164 160 182 C150 198 136 206 120 206 C104 206 90 198 80 182 Z" fill="#1a3f9f"/>
+  <path d="M106 158 C104 168 108 182 120 188 C132 182 136 168 134 158" fill="none" stroke="#2f63de" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- drawstrings -->
+  <path d="M112 192 C111 204 110 214 109 226" fill="none" stroke="#e5e7eb" stroke-width="3" stroke-linecap="round"/>
+  <path d="M128 192 C129 204 130 214 131 226" fill="none" stroke="#e5e7eb" stroke-width="3" stroke-linecap="round"/>
+  <rect x="106.5" y="224" width="5" height="9" rx="2" fill="#cbd5e1"/>
+  <rect x="128.5" y="224" width="5" height="9" rx="2" fill="#cbd5e1"/>
+
+  <!-- ears -->
+  <ellipse cx="80" cy="106" rx="8" ry="13" fill="#b0744b"/>
+  <ellipse cx="160" cy="106" rx="8" ry="13" fill="#b0744b"/>
+  <!-- face -->
+  <path d="M80 94 C80 62 98 46 120 46 C142 46 160 62 160 94 C160 124 152 146 137 158 C129 165 111 165 103 158 C88 146 80 124 80 94 Z" fill="url(#{{ u }}-skin)"/>
+  <!-- cheeks (smile) -->
+  <ellipse cx="96" cy="120" rx="8" ry="5" fill="#d9946a" opacity=".32"/>
+  <ellipse cx="144" cy="120" rx="8" ry="5" fill="#d9946a" opacity=".32"/>
+  <!-- beard -->
+  <path d="M82 110 C84 140 98 161 120 166 C142 161 156 140 158 110 C155 126 150 134 143 139 C138 150 130 156 120 156 C110 156 102 150 97 139 C90 134 85 126 82 110 Z" fill="#221613" opacity=".94"/>
+  <!-- big smile with teeth -->
+  <path d="M104 134 Q120 154 136 134 Q120 139 104 134 Z" fill="#fff" stroke="#3b1f17" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M104 134 Q120 139 136 134" fill="none" stroke="#3b1f17" stroke-width="1.6"/>
+  <!-- moustache -->
+  <path d="M103 131 Q112 124 120 127 Q128 124 137 131 Q128 129 120 131 Q112 129 103 131 Z" fill="#221613"/>
+  <!-- nose -->
+  <path d="M120 104 L115 120 Q120 124 126 120" fill="none" stroke="#8f5b39" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- happy eyes -->
+  <g class="avatar-eyes">
+    <path d="M91 103 Q101 95 111 103 Q101 107 91 103 Z" fill="#fff"/>
+    <path d="M129 103 Q139 95 149 103 Q139 107 129 103 Z" fill="#fff"/>
+    <circle cx="101" cy="102" r="4.3" fill="#3f2616"/><circle cx="139" cy="102" r="4.3" fill="#3f2616"/>
+    <circle cx="101" cy="102" r="2.1" fill="#0b0604"/><circle cx="139" cy="102" r="2.1" fill="#0b0604"/>
+    <circle cx="102.5" cy="100.5" r="1.3" fill="#fff"/><circle cx="140.5" cy="100.5" r="1.3" fill="#fff"/>
+    <path d="M90 102.5 Q101 94 112 102" fill="none" stroke="#1a110d" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M128 102 Q139 94 150 102.5" fill="none" stroke="#1a110d" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M93 107 Q101 110 109 107" fill="none" stroke="#8f5b39" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M131 107 Q139 110 147 107" fill="none" stroke="#8f5b39" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+  <!-- eyebrows -->
+  <path d="M89 90 Q100 83 113 87" fill="none" stroke="#17100d" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M127 87 Q140 83 151 90" fill="none" stroke="#17100d" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- hair: short sides, fuller wavy top -->
+  <path d="M78 100 C71 62 90 32 122 31 C155 31 172 58 163 100 C161 88 158 79 152 72 C143 64 130 67 118 63 C106 59 93 64 87 74 C82 82 80 91 78 100 Z" fill="url(#{{ u }}-hair)"/>
+  <path d="M88 60 C92 40 108 28 126 28 C146 28 160 42 158 62 C150 50 140 46 130 47 C122 40 110 40 102 46 C96 50 92 54 88 60 Z" fill="url(#{{ u }}-hair)"/>
+  <path d="M100 44 Q112 36 124 40 M124 40 Q138 36 148 46" fill="none" stroke="#3b302a" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+
+  <!-- broadcast headset -->
+  <path d="M74 102 C68 30 172 30 166 102" fill="none" stroke="#151a24" stroke-width="7" stroke-linecap="round"/>
+  <path d="M76 96 C72 40 168 40 164 96" fill="none" stroke="#3a4253" stroke-width="1.4" stroke-linecap="round"/>
+  <rect x="62" y="92" width="18" height="30" rx="8" fill="#0f131b"/>
+  <rect x="160" y="92" width="18" height="30" rx="8" fill="#0f131b"/>
+  <rect x="64" y="100" width="4" height="14" rx="2" fill="#2a3242"/>
+  <rect x="172" y="100" width="4" height="14" rx="2" fill="#2a3242"/>
+  <path d="M73 120 C76 142 90 150 104 148" fill="none" stroke="#151a24" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="106" cy="148" r="9" fill="url(#{{ u }}-glow)" class="avatar-mic-glow" opacity=".7"/>
+  <rect x="101" y="144" width="10" height="8" rx="4" fill="#151a24"/>
+</svg>

@@ -1,0 +1,21 @@
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <p class="footer-name">{{ profile.full_name }}</p>
+      <p class="muted">{{ profile.headline }}</p>
+    </div>
+    {% if socials %}
+    <ul class="footer-socials" aria-label="Social links">
+      {% for s in socials %}
+      <li><a href="{{ s.url }}" {% if not s.url.startswith('mailto:') %}target="_blank" rel="noopener noreferrer"{% endif %}
+             aria-label="{{ s.label or s.platform|title }}" class="icon-btn">{{ icon(s.platform) }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="footer-meta mono">
+      <span><span class="tally"></span> {{ content.footer_status }}</span>
+      <span>&copy; {{ now_year }} {{ profile.full_name }}</span>
+      <a href="#main" class="to-top" aria-label="Back to top">{{ icon('arrow-up-right') }}</a>
+    </div>
+  </div>
+</footer>

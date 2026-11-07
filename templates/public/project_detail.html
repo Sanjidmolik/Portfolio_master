@@ -1,0 +1,78 @@
+{% extends "public/base.html" %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block description %}{{ project.summary or project.tagline }}{% endblock %}
+{% block og_image %}{% if project.thumbnail %}{{ site_url }}{{ url_for('static', filename=project.thumbnail) }}{% else %}{{ site_url }}{{ url_for('public.og_image') }}{% endif %}{% endblock %}
+{% block content %}
+{% set p = project %}
+<article class="section case">
+  <div class="container">
+    <a class="back-link mono" href="{{ url_for('public.projects') }}">{{ icon('arrow-left') }} ALL PROJECTS</a>
+    {% if not p.visible %}<p class="flash flash-error">This project is unpublished. Only you (signed in) can see it.</p>{% endif %}
+    <header class="case-head">
+      <div data-reveal>
+        <p class="eyebrow mono"><span class="ch">{{ content.project_case_label }}</span><span class="eyebrow-line"></span><span class="status-{{ p.status }} project-status static">{{ p.status_label }}</span></p>
+        <h1 class="case-title">{{ p.title }}</h1>
+        {% if p.tagline %}<p class="case-tagline">{{ p.tagline }}</p>{% endif %}
+        <div class="hero-ctas">
+          {% if p.demo_url %}<a class="btn btn-primary" href="{{ p.demo_url }}" target="_blank" rel="noopener noreferrer" data-magnetic>{{ icon('external') }} Live demo</a>{% endif %}
+          {% if p.github_url %}<a class="btn btn-ghost" href="{{ p.github_url }}" target="_blank" rel="noopener noreferrer" data-magnetic>{{ icon('github') }} Source code</a>{% endif %}
+        </div>
+      </div>
+      {% if p.tech_list %}
+      <aside class="case-meta card" data-reveal style="--i:1">
+        <p class="mono xp-label">TECH STACK</p>
+        <ul class="tags">{% for t in p.tech_list %}<li>{{ t }}</li>{% endfor %}</ul>
+        <p class="mono xp-label">STATUS</p><p>{{ p.status_label }}</p>
+      </aside>
+      {% endif %}
+    </header>
+
+    <figure class="case-cover" data-reveal>
+      {% if p.thumbnail %}
+        <img src="{{ url_for('static', filename=p.thumbnail) }}" alt="{{ p.title }} screenshot" width="1600" height="1000" fetchpriority="high">
+      {% else %}{% include "public/_project_cover.html" %}{% endif %}
+    </figure>
+
+    <div class="case-body">
+      <div class="case-text">
+        {% for para in p.description_paragraphs %}<p data-reveal>{{ para }}</p>{% else %}<p>{{ p.summary }}</p>{% endfor %}
+      </div>
+      {% if p.highlight_list %}
+      <aside class="case-highlights card" data-reveal>
+        <p class="mono xp-label">{{ content.project_features_label }}</p>
+        <ul class="ticks">{% for h in p.highlight_list %}<li>{{ h }}</li>{% endfor %}</ul>
+      </aside>
+      {% endif %}
+    </div>
+
+    {% if p.images %}
+    <section class="gallery" aria-label="Screenshots">
+      <h2 class="col-title mono">{{ icon('image') }} SCREENSHOTS</h2>
+      <ul class="gallery-grid" data-gallery>
+        {% for img in p.images %}
+        <li data-reveal style="--i:{{ loop.index0 % 3 }}">
+          <button type="button" class="gallery-item" data-lightbox="{{ url_for('static', filename=img.path) }}" data-caption="{{ img.caption }}" aria-label="Open screenshot {{ loop.index }}{% if img.caption %}: {{ img.caption }}{% endif %}">
+            <img src="{{ url_for('static', filename=img.path) }}" alt="{{ img.caption or p.title ~ ' screenshot ' ~ loop.index }}" loading="lazy" decoding="async" width="800" height="500">
+          </button>
+          {% if img.caption %}<p class="muted gallery-cap">{{ img.caption }}</p>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    <dialog class="lightbox" data-lightbox-dialog aria-label="Screenshot viewer">
+      <button type="button" class="icon-btn lb-close" data-lb-close aria-label="Close">{{ icon('close') }}</button>
+      <button type="button" class="icon-btn lb-prev" data-lb-prev aria-label="Previous">{{ icon('arrow-left') }}</button>
+      <figure><img alt="" data-lb-img><figcaption data-lb-cap></figcaption></figure>
+      <button type="button" class="icon-btn lb-next" data-lb-next aria-label="Next">{{ icon('arrow-right') }}</button>
+    </dialog>
+    {% endif %}
+
+    {% if others %}
+    <section class="more-projects">
+      <h2 class="col-title mono">{{ content.project_more_label }}</h2>
+      <div class="project-grid">{% for p in others %}{% set idx = loop.index0 %}{% include "public/_project_card.html" %}{% endfor %}</div>
+    </section>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

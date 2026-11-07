@@ -1,0 +1,51 @@
+{% macro fmt(d) -%}
+  {%- if d and d|length == 7 -%}{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d[5:7]|int - 1] }} {{ d[:4] }}{%- else -%}{{ d }}{%- endif -%}
+{%- endmacro %}
+<section class="section experience" id="experience" aria-labelledby="experience-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+    <ol class="xp-list">
+      {% for x in experiences %}
+      <li class="xp-item" data-reveal style="--i:{{ loop.index0 % 3 }}">
+        <div class="xp-rail" aria-hidden="true"><span class="xp-dot {{ 'is-live' if x.is_current }}"></span></div>
+        <article class="xp-card card" data-spotlight>
+          <header class="xp-head">
+            <div class="xp-logo">
+              {% if x.logo %}<img src="{{ url_for('static', filename=x.logo) }}" alt="{{ x.company }} logo" width="56" height="56" loading="lazy">
+              {% else %}{{ icon('broadcast' if ('broadcast' in (x.position ~ ' ' ~ x.description)|lower or 'mcr' in x.position|lower) else 'briefcase') }}{% endif %}
+            </div>
+            <div class="xp-title">
+              <h3>{{ x.position }}</h3>
+              <p class="xp-company">
+                {% if x.company_url %}<a href="{{ x.company_url }}" target="_blank" rel="noopener noreferrer">{{ x.company }}</a>{% else %}{{ x.company }}{% endif %}
+                {% if x.employment_type %}<span class="sep">&middot;</span>{{ x.employment_type }}{% endif %}
+                {% if x.location %}<span class="sep">&middot;</span>{{ x.location }}{% endif %}
+              </p>
+            </div>
+            <p class="xp-period mono">
+              {% if x.is_current %}<span class="tally"></span>{% endif %}
+              {{ fmt(x.start_date) }}{% if x.start_date %} &ndash; {% endif %}{{ 'Present' if x.is_current else fmt(x.end_date) }}
+            </p>
+          </header>
+          {% if x.description %}<p class="xp-desc">{{ x.description }}</p>{% endif %}
+          {% if x.responsibility_list or x.achievement_list %}
+          <div class="xp-body">
+            {% if x.responsibility_list %}
+            <div><p class="mono xp-label">RESPONSIBILITIES</p>
+              <ul class="ticks">{% for r in x.responsibility_list %}<li>{{ r }}</li>{% endfor %}</ul></div>
+            {% endif %}
+            {% if x.achievement_list %}
+            <div><p class="mono xp-label">ACHIEVEMENTS</p>
+              <ul class="ticks ticks-star">{% for a in x.achievement_list %}<li>{{ a }}</li>{% endfor %}</ul></div>
+            {% endif %}
+          </div>
+          {% endif %}
+          {% if x.tech_list %}
+          <ul class="tags" aria-label="Technologies and equipment">{% for t in x.tech_list %}<li>{{ t }}</li>{% endfor %}</ul>
+          {% endif %}
+        </article>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>

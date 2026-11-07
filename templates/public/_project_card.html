@@ -1,0 +1,21 @@
+<article class="project-card card" data-reveal style="--i:{{ idx % 3 }}" data-spotlight data-tech="{{ p.tech_list | join('|') }}">
+  <a class="project-media" href="{{ url_for('public.project_detail', slug=p.slug) }}" tabindex="-1" aria-hidden="true">
+    {% if p.thumbnail %}
+      <img src="{{ url_for('static', filename=p.thumbnail) }}" alt="" loading="lazy" decoding="async" width="800" height="500">
+    {% else %}
+      {% include "public/_project_cover.html" %}
+    {% endif %}
+    <span class="project-status mono status-{{ p.status }}">{{ p.status_label }}</span>
+  </a>
+  <div class="project-body">
+    <h3><a href="{{ url_for('public.project_detail', slug=p.slug) }}" class="stretched">{{ p.title }}</a></h3>
+    {% if p.tagline %}<p class="project-tagline">{{ p.tagline }}</p>{% endif %}
+    {% if p.summary %}<p class="project-summary">{{ p.summary }}</p>{% endif %}
+    {% if p.tech_list %}<ul class="tags">{% for t in p.tech_list[:6] %}<li>{{ t }}</li>{% endfor %}</ul>{% endif %}
+    <div class="project-links">
+      <span class="link-arrow">{{ content.project_card_link }} {{ icon('arrow-right') }}</span>
+      {% if p.github_url %}<a class="icon-btn raise" href="{{ p.github_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ p.title }} on GitHub">{{ icon('github') }}</a>{% endif %}
+      {% if p.demo_url %}<a class="icon-btn raise" href="{{ p.demo_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ p.title }} live demo">{{ icon('external') }}</a>{% endif %}
+    </div>
+  </div>
+</article>

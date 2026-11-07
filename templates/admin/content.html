@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+{% from "admin/_fields.html" import icon_input, icon_datalist %}
+{% block title %}Site Content{% endblock %}
+{% block heading %}<h1>Site Content</h1><p class="muted">Every label, heading and button on your public site. Saved changes go live immediately.</p>{% endblock %}
+{% block actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">{{ icon('eye') }} View site</a>{% endblock %}
+{% block content %}
+{% set anchors = {'hero': '#hero', 'about': '#about', 'pass': '#github', 'github': '#github', 'education': '#education', 'contact': '#contact', 'pages': ''} %}
+<form class="pro-form" method="post" novalidate data-pro-form data-content-form>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="_tab" value="" data-tab-field>
+  {{ icon_datalist(builtin_icons) }}
+  {% if errors %}
+  <div class="error-summary" role="alert" tabindex="-1" data-error-summary>
+    <strong>{{ icon('close') }} {{ errors | length }} field{{ 's' if errors|length != 1 }} need{{ '' if errors|length != 1 else 's' }} attention</strong>
+    <ul>{% for key, msg in errors.items() %}<li><a href="#field-{{ key }}" data-goto="{{ key }}">{{ msg }}</a></li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <div class="content-tabs" role="tablist" aria-label="Site areas">
+    {% for g in groups %}
+    {% set n_err = g.fields | selectattr('key', 'in', errors) | list | length %}
+    <button type="button" role="tab" class="ctab" id="tab-{{ g.key }}" data-ctab="{{ g.key }}" aria-controls="panel-{{ g.key }}" aria-selected="{{ 'true' if loop.first else 'false' }}">
+      {{ icon(g.icon) }}<span>{{ g.title }}</span>{% if n_err %}<span class="pill pill-err">{{ n_err }}</span>{% endif %}
+    </button>
+    {% endfor %}
+  </div>
+
+  {% for g in groups %}
+  <section class="card form-section" role="tabpanel" id="panel-{{ g.key }}" aria-labelledby="tab-{{ g.key }}" data-cpanel="{{ g.key }}" {% if not loop.first %}hidden{% endif %}>
+    <header class="section-header">
+      <span class="step mono">{{ icon(g.icon) }}</span>
+      <div><h2>{{ g.title }}</h2><p class="muted">{{ g.intro }}</p></div>
+      <a class="btn btn-ghost btn-xs" href="{{ url_for('public.projects') if g.key == 'pages' else url_for('public.home') ~ anchors[g.key] }}" target="_blank" rel="noopener">{{ icon('external') }} See it live</a>
+    </header>
+    <div class="form-grid">
+      {% for f in g.fields %}
+      {% set err = errors.get(f.key) %}
+      <div class="f {{ 'f-wide' if f.kind == 'textarea' }} {{ 'has-error' if err }}" id="field-{{ f.key }}">
+        <div class="f-head">
+          <label for="f-{{ f.key }}">{{ f.label }}{% if f.required %} <em aria-hidden="true">*</em>{% endif %}</label>
+          {% if f.kind != 'icon' %}<span class="counter mono" data-counter-for="f-{{ f.key }}" aria-hidden="true"></span>{% endif %}
+        </div>
+        <p class="reqs">
+          <span class="req {{ 'req-req' if f.required else 'req-opt' }}">{{ 'Required' if f.required else 'Optional' }}</span>
+          {% if f.kind == 'icon' %}<span class="req req-fmt">Built-in icon name or si:&lt;slug&gt;</span>
+          {% else %}<span class="req req-len">Max {{ f.max }} characters</span>{% endif %}
+        </p>
+        {% if f.kind == 'textarea' %}
+          <textarea id="f-{{ f.key }}" name="{{ f.key }}" rows="3" maxlength="{{ f.max }}" {% if f.required %}required{% endif %}>{{ values[f.key] }}</textarea>
+        {% elif f.kind == 'icon' %}
+          {{ icon_input(f.key, values[f.key], builtin_icons) }}
+        {% else %}
+          <input id="f-{{ f.key }}" name="{{ f.key }}" value="{{ values[f.key] }}" maxlength="{{ f.max }}" {% if f.required %}required{% endif %} placeholder="{{ f.default }}">
+        {% endif %}
+        <div class="f-foot">
+          {% if f.help %}<p class="hint">{{ f.help }}</p>{% endif %}
+          {% if f.default %}<button type="button" class="link-btn" data-reset-to="{{ f.default }}" data-reset-target="f-{{ f.key }}" title="Default: {{ f.default }}">{{ icon('refresh') }} Reset to default</button>{% endif %}
+        </div>
+        {% if err %}<p class="err" role="alert">{{ icon('close') }} {{ err }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <div class="save-bar">
+    <span class="save-bar-status muted" data-dirty-status>All changes saved</span>
+    <button class="btn btn-primary" type="submit">{{ icon('check') }} Save site content</button>
+  </div>
+</form>
+{% endblock %}

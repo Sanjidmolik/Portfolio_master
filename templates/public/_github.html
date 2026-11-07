@@ -1,0 +1,84 @@
+{% if not gh %}
+<div class="gh-empty card">
+  <p>{{ content.gh_unavailable }}</p>
+  {% if username %}<a class="btn btn-ghost btn-sm" href="https://github.com/{{ username }}" target="_blank" rel="noopener noreferrer">{{ icon('github') }} View profile on GitHub</a>{% endif %}
+</div>
+{% else %}
+{%- set months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'] -%}
+{%- set fetched = gh.fetched_at or '' -%}
+<div class="gh-wrap dash">
+  <header class="dash-head">
+    <div>
+      <p class="dash-eyebrow mono">{{ content.gh_eyebrow }}</p>
+      <a class="dash-title" href="{{ gh.profile.url }}" target="_blank" rel="noopener noreferrer">
+        {% if gh.profile.avatar %}<img src="{{ gh.profile.avatar }}&s=80" alt="" width="32" height="32" loading="lazy">{% endif %}
+        @{{ gh.profile.login }} {{ icon('arrow-up-right') }}
+      </a>
+    </div>
+    {% if fetched|length >= 7 %}
+    <span class="live-pill mono"><span class="dot"></span>LIVE &middot; {{ months[fetched[5:7]|int - 1] }} {{ fetched[:4] }}</span>
+    {% endif %}
+  </header>
+
+  <ul class="dash-stats">
+    {% for label, val, ic, tone in [
+      ('Public repos', gh.profile.public_repos, 'folder', 'c1'),
+      ('Stars earned', gh.stats.stars, 'star', 'c2'),
+      ('Forks', gh.stats.forks, 'fork', 'c3'),
+      ('Followers', gh.profile.followers, 'users', 'c4'),
+    ] %}
+    <li class="dash-stat card tone-{{ tone }}">
+      <span class="dash-bar" aria-hidden="true"></span>
+      <span class="dash-icon">{{ icon(ic) }}</span>
+      <span class="gh-stat-num" data-count="{{ val }}">{{ val }}</span>
+      <span class="gh-stat-label mono">{{ label }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="dash-row">
+    {% set top = gh.repos | sort(attribute='stars', reverse=True) %}
+    {% set max_stars = (top | map(attribute='stars') | max) if top else 0 %}
+    <div class="dash-card card">
+      {% if max_stars > 0 %}
+      <p class="dash-label mono">{{ content.gh_top_label }}</p>
+      <ul class="bars">
+        {% for r in top[:6] %}
+        <li><a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" class="bar-name">{{ r.name }}</a>
+          <span class="bar-track"><span class="bar-fill" style="--w:{{ [(r.stars / max_stars * 100) | round(1), 4] | max }}%"></span></span>
+          <span class="bar-val mono">{{ r.stars }}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="dash-label mono">{{ content.gh_latest_label }}</p>
+      <ul class="repo-lines">
+        {% for r in gh.repos[:6] %}
+        <li><a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">{{ icon('repo') }} {{ r.name }}</a>
+          <span class="mono muted">{% if r.language %}{{ r.language }} &middot; {% endif %}{{ r.pushed_at }}</span></li>
+        {% else %}<li class="muted">No public repositories yet.</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div class="dash-card card">
+      {% if channels %}
+      <p class="dash-label mono">{{ content.gh_channels_label }}</p>
+      <ul class="channels">
+        {% for c in channels %}
+        <li class="ch-{{ loop.index0 }}"><span class="ch-name mono"><span class="dot"></span>{{ c.name | upper }}</span>
+          <span class="ch-skills">{{ c.skills | join(' · ') }}</span></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if gh.languages %}
+      {% set lang_total = gh.languages | sum(attribute='count') %}
+      <p class="dash-label mono">{{ content.gh_languages_label }}</p>
+      <div class="lang-bar">{% for l in gh.languages %}<span class="lang-seg l{{ loop.index0 }}" style="--w:{{ (l.count / lang_total * 100) | round(1) }}%"></span>{% endfor %}</div>
+      <ul class="lang-list">{% for l in gh.languages %}<li><span class="lang-dot l{{ loop.index0 }}"></span>{{ l.name }} <span class="muted">{{ l.count }}</span></li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <p class="gh-foot mono muted">Data from the public GitHub API &middot; cached {{ fetched[:16] | replace('T', ' ') }} UTC</p>
+</div>
+{% endif %}

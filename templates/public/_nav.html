@@ -1,0 +1,47 @@
+{% set on_home = request.endpoint == 'public.home' %}
+{% set nav_icons = {'hero': 'home', 'about': 'user', 'experience': 'briefcase', 'skills': 'code', 'projects': 'folder',
+                    'education': 'graduation', 'github': 'github', 'contact': 'mail'} %}
+{% set base = '' if on_home else url_for('public.home') %}
+<header class="site-header" data-header>
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="{{ url_for('public.home') }}" aria-label="{{ profile.full_name }}, home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 44 44">
+          <defs><linearGradient id="bm" x1="0" y1="0" x2="44" y2="44"><stop stop-color="var(--secondary)"/><stop offset="1" stop-color="var(--primary)"/></linearGradient></defs>
+          <path d="M9 10.5v23a2 2 0 0 0 3 1.7l20-11.5a2 2 0 0 0 0-3.4L12 8.8a2 2 0 0 0-3 1.7z" fill="url(#bm)"/>
+          <path d="M15 17.5v9l8-4.5z" fill="var(--bg)"/>
+          <path class="brand-wave w1" d="M31 6.5a7 7 0 0 1 0 9" fill="none" stroke="var(--secondary)" stroke-width="2.2" stroke-linecap="round"/>
+          <path class="brand-wave w2" d="M35 3.5a12 12 0 0 1 0 15" fill="none" stroke="var(--secondary)" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-text">{{ profile.short_name or profile.full_name.split(' ')[0] }}
+        {% if content.nav_brand_sub %}<span class="brand-sub">{{ content.nav_brand_sub }}</span>{% endif %}</span>
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="{{ base }}#hero" data-nav="hero" class="{{ 'is-active' if on_home }}">{{ icon('home') }}<span>Home</span></a></li>
+      {% for s in nav_sections %}
+      <li data-nav-key="{{ s.key }}" {% if not s.enabled %}hidden{% endif %}>
+        <a href="{{ base }}#{{ s.key }}" data-nav="{{ s.key }}">{{ icon(nav_icons.get(s.key, 'sparkles')) }}<span>{{ {'github': 'GitHub'}.get(s.key, s.key|title) }}</span></a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="nav-actions">
+      {% if design.theme.allow_toggle %}
+      <button class="theme-seg" type="button" data-theme-toggle aria-label="Toggle light and dark theme">
+        <span class="ts-sun">{{ icon('sun') }}</span><span class="ts-moon">{{ icon('moon') }}</span>
+      </button>
+      {% endif %}
+      {% if design.animation.enabled %}
+      <button class="icon-btn nav-motion" type="button" data-motion-toggle aria-pressed="false" aria-label="Pause animations" title="Pause animations">
+        {{ icon('motion') }}
+      </button>
+      {% endif %}
+      <a class="btn btn-sm nav-cta" href="{{ base }}#contact" data-magnetic>{{ content.nav_cta }} {{ icon('send') }}</a>
+      <button class="icon-btn nav-burger" type="button" aria-controls="nav-links" aria-expanded="false" data-menu-toggle aria-label="Open menu">
+        <span class="burger-open">{{ icon('menu') }}</span><span class="burger-close">{{ icon('close') }}</span>
+      </button>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,94 @@
+{#- Shared admin form-field rendering with requirement details and character counters. -#}
+
+{% macro requirements(f, limit=None, social=False) -%}
+  {%- set parts = [] -%}
+  {%- if f.required %}{% set _ = parts.append(('req', 'Required')) %}{% else %}{% set _ = parts.append(('opt', 'Optional')) %}{% endif -%}
+  {%- if f.type == 'url' %}{% set _ = parts.append(('fmt', 'Full URL starting with https://' ~ (' or mailto:' if social else ''))) %}{% endif -%}
+  {%- if f.type == 'email' %}{% set _ = parts.append(('fmt', 'Valid email address')) %}{% endif -%}
+  {%- if f.type == 'month' %}{% set _ = parts.append(('fmt', 'Format: YYYY or YYYY-MM')) %}{% endif -%}
+  {%- if f.type == 'tags' %}{% set _ = parts.append(('fmt', 'Separate items with commas')) %}{% endif -%}
+  {%- if f.type == 'lines' %}{% set _ = parts.append(('fmt', 'One item per line')) %}{% endif -%}
+  {%- if f.type == 'slug' %}{% set _ = parts.append(('fmt', 'Lowercase letters, numbers and hyphens')) %}{% endif -%}
+  {%- if f.type == 'float' %}{% set _ = parts.append(('fmt', 'Number from 0 to 60 (e.g. 1.5)')) %}{% endif -%}
+  {%- if f.type == 'icon' %}{% set _ = parts.append(('fmt', 'Built-in icon name or si:<slug>')) %}{% endif -%}
+  {%- if f.type == 'github' %}{% set _ = parts.append(('fmt', 'Username only, no URL')) %}{% endif -%}
+  {%- if f.type == 'image' %}{% set _ = parts.append(('fmt', 'JPG, PNG, WebP or GIF · max 6 MB · auto-optimised')) %}{% endif -%}
+  {%- if limit %}{% set _ = parts.append(('len', 'Max ' ~ limit ~ ' characters')) %}{% endif -%}
+  <p class="reqs">{% for kind, text in parts %}<span class="req req-{{ kind }}">{{ text }}</span>{% endfor %}</p>
+{%- endmacro %}
+
+{% macro icon_input(name, val, builtin_icons, default='') %}
+<div class="icon-field">
+  <span class="icon-preview" data-icon-preview>{{ any_icon(val) }}</span>
+  <input id="f-{{ name }}" name="{{ name }}" value="{{ val }}" list="dl-icons" placeholder="e.g. shield or si:python" autocomplete="off" maxlength="44" data-icon-input>
+</div>
+<details class="icon-picker"><summary>Browse built-in icons</summary>
+  <div class="icon-grid">{% for i in builtin_icons %}<button type="button" class="icon-choice" data-icon-choice="{{ i }}" title="{{ i }}" aria-label="{{ i }}">{{ icon(i) }}</button>{% endfor %}</div>
+  <p class="hint">Brand logos: type <code>si:</code> plus the slug from <a href="https://simpleicons.org" target="_blank" rel="noopener noreferrer">simpleicons.org</a>, e.g. <code>si:python</code>.</p>
+</details>
+{% endmacro %}
+
+{% macro icon_datalist(builtin_icons) %}<datalist id="dl-icons">{% for i in builtin_icons %}<option value="{{ i }}">{% endfor %}</datalist>{% endmacro %}
+
+{% macro render_field(f, obj, errors, builtin_icons=[], limits={}, social=False) %}
+{% set val = obj[f.name] if obj[f.name] is not none else '' %}
+{% set err = errors.get(f.name) %}
+{% set limit = limits.get(f.name) %}
+<div class="f {{ 'f-wide' if f.wide or f.type in ('textarea', 'lines', 'image') }} {{ 'f-bool' if f.type == 'bool' }} {{ 'has-error' if err }}" id="field-{{ f.name }}">
+  {% if f.type == 'bool' %}
+    <label class="check"><input type="checkbox" name="{{ f.name }}" {% if val %}checked{% endif %}><span class="switch-ui"></span>{{ f.label }}</label>
+    {% if f.help %}<p class="hint">{{ f.help }}</p>{% endif %}
+  {% else %}
+    <div class="f-head">
+      <label for="f-{{ f.name }}">{{ f.label }}{% if f.required %} <em aria-hidden="true">*</em>{% endif %}</label>
+      {% if limit and f.type not in ('month', 'select') %}<span class="counter mono" data-counter-for="f-{{ f.name }}" aria-hidden="true"></span>{% endif %}
+    </div>
+    {{ requirements(f, limit if f.type not in ('month', 'select', 'icon') else None, social) }}
+    {% set described = 'help-' ~ f.name if f.help else '' %}
+    {% if f.type in ('textarea', 'lines') %}
+      <textarea id="f-{{ f.name }}" name="{{ f.name }}" rows="{{ 8 if f.wide else 4 }}" {% if f.required %}required{% endif %}
+        {% if limit %}maxlength="{{ limit }}"{% endif %} placeholder="{{ f.placeholder }}" {% if described %}aria-describedby="{{ described }}"{% endif %}>{{ val }}</textarea>
+    {% elif f.type == 'select' %}
+      <select id="f-{{ f.name }}" name="{{ f.name }}" {% if f.required %}required{% endif %}>
+        {% for v, l in f.choices %}<option value="{{ v }}" {% if v == (val or '') %}selected{% endif %}>{{ l }}</option>{% endfor %}
+      </select>
+    {% elif f.type == 'datalist' %}
+      <input id="f-{{ f.name }}" name="{{ f.name }}" value="{{ val }}" list="dl-{{ f.name }}" {% if f.required %}required{% endif %} {% if limit %}maxlength="{{ limit }}"{% endif %} autocomplete="off">
+      <datalist id="dl-{{ f.name }}">{% for c in f.choices %}<option value="{{ c }}">{% endfor %}</datalist>
+    {% elif f.type == 'icon' %}
+      {{ icon_input(f.name, val, builtin_icons) }}
+    {% elif f.type == 'image' %}
+      <div class="upload" data-upload>
+        <div class="upload-preview">
+          {% if val %}<img src="{{ url_for('static', filename=val) }}" alt="" data-upload-img>{% else %}<span class="upload-empty" data-upload-img>{{ icon('image') }}</span>{% endif %}
+        </div>
+        <div class="upload-ctl">
+          <input id="f-{{ f.name }}" type="file" name="{{ f.name }}" accept="image/png,image/jpeg,image/webp,image/gif" data-upload-input>
+          {% if val %}<label class="check small"><input type="checkbox" name="{{ f.name }}__remove"> Remove current image</label>{% endif %}
+        </div>
+      </div>
+    {% else %}
+      <input id="f-{{ f.name }}" name="{{ f.name }}" value="{{ val }}"
+        type="{{ 'url' if f.type == 'url' else 'email' if f.type == 'email' else 'number' if f.type == 'float' else 'text' }}"
+        {% if f.type == 'float' %}step="0.5" min="0" max="60"{% endif %}
+        {% if f.type == 'month' %}pattern="\d{4}(-(0[1-9]|1[0-2]))?" placeholder="2024-06" title="YYYY or YYYY-MM"
+        {% elif f.type == 'slug' %}pattern="[a-z0-9-]*" title="Lowercase letters, numbers and hyphens" placeholder="{{ f.placeholder or 'my-project' }}"
+        {% elif f.type == 'url' %}placeholder="{{ f.placeholder or 'https://' }}" pattern="{{ '(https?://|mailto:).+' if social else 'https?://.+' }}" title="a full URL starting with https://"
+        {% elif f.type == 'github' %}pattern="[A-Za-z0-9-]{1,39}" title="GitHub username" placeholder="{{ f.placeholder }}"
+        {% else %}placeholder="{{ f.placeholder }}"{% endif %}
+        {% if limit and f.type != 'month' %}maxlength="{{ limit }}"{% endif %}
+        {% if f.required %}required{% endif %} {% if described %}aria-describedby="{{ described }}"{% endif %}>
+    {% endif %}
+    {% if f.help %}<p class="hint" id="help-{{ f.name }}">{{ f.help }}</p>{% endif %}
+  {% endif %}
+  {% if err %}<p class="err" role="alert">{{ icon('close') }} {{ err }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+
+
+{% macro group_nav(groups) %}
+<nav class="form-steps" aria-label="Form sections">
+  {% for g in groups %}<a href="#grp-{{ loop.index }}">{{ g[0] if g is not mapping else g.title }}</a>{% endfor %}
+</nav>
+{% endmacro %}

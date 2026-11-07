@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block title %}Security{% endblock %}
+{% block heading %}<h1>Account security</h1>{% endblock %}
+{% block content %}
+<div class="dash-grid">
+  <form class="card form-card" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="panel-head"><h2>{{ icon('lock') }} Change password</h2></header>
+    <label class="f"><span>Current password</span><input type="password" name="current_password" required autocomplete="current-password"></label>
+    <label class="f"><span>New password</span><input type="password" name="new_password" required minlength="12" autocomplete="new-password"></label>
+    <label class="f"><span>Confirm new password</span><input type="password" name="confirm_password" required minlength="12" autocomplete="new-password"></label>
+    <p class="hint">At least 12 characters with upper- and lower-case letters and a number. Changing it signs out every other session.</p>
+    <div class="form-actions"><button class="btn btn-primary" type="submit" name="action" value="password">Update password</button></div>
+  </form>
+  <section class="card form-card">
+    <header class="panel-head"><h2>{{ icon('shield') }} Sessions</h2></header>
+    <p>Signed in as <strong>{{ user.username }}</strong>.</p>
+    <p class="muted">Last sign-in: {{ user.last_login_at.strftime('%d %b %Y, %H:%M UTC') if user.last_login_at else 'n/a' }}</p>
+    <p class="muted">Sessions expire automatically after {{ (config.PERMANENT_SESSION_LIFETIME.total_seconds() // 3600) | int }} hours.</p>
+    <form method="post" data-confirm="Sign out of all sessions, including this one?">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-ghost danger" type="submit" name="action" value="revoke">{{ icon('logout') }} Sign out everywhere</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

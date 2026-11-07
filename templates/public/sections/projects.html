@@ -1,0 +1,11 @@
+<section class="section projects" id="projects" aria-labelledby="projects-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+    <div class="project-grid {{ 'is-single' if projects|length == 1 }}">
+      {% for p in projects %}{% set idx = loop.index0 %}{% include "public/_project_card.html" %}{% endfor %}
+    </div>
+    {% if project_total > projects|length %}
+    <p class="section-more" data-reveal><a class="btn btn-ghost" href="{{ url_for('public.projects') }}">{{ content.projects_view_all }} ({{ project_total }}) {{ icon('arrow-right') }}</a></p>
+    {% endif %}
+  </div>
+</section>

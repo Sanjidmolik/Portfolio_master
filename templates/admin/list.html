@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ res.label }}{% endblock %}
+{% block heading %}<h1>{{ res.label }}</h1>{% if res.description %}<p class="muted">{{ res.description }}</p>{% endif %}{% endblock %}
+{% block actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('admin.resource_edit', key=res.key) }}">{{ icon('plus') }} Add {{ res.singular | lower }}</a>{% endblock %}
+{% block content %}
+{% if items %}
+<div class="card table-card">
+  <p class="table-hint muted">{{ icon('grip') }} Drag rows (or use the arrows) to change the display order.</p>
+  <table class="table">
+    <thead><tr><th class="col-drag" aria-label="Order"></th>
+      {% for attr, label in res.columns %}<th>{{ label }}</th>{% endfor %}
+      <th>Visible</th><th class="col-actions"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody data-sortable="{{ url_for('admin.resource_reorder', key=res.key) }}">
+      {% for o in items %}
+      <tr data-id="{{ o.id }}" class="{{ 'is-hidden' if not o.visible }}">
+        <td class="col-drag"><span class="drag" draggable="true" title="Drag to reorder" aria-hidden="true">{{ icon('grip') }}</span>
+          <span class="move">
+            <form method="post" action="{{ url_for('admin.resource_move', key=res.key, item_id=o.id, direction='up') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="mini" {% if loop.first %}disabled{% endif %} aria-label="Move up">{{ icon('chevron-up') }}</button></form>
+            <form method="post" action="{{ url_for('admin.resource_move', key=res.key, item_id=o.id, direction='down') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="mini" {% if loop.last %}disabled{% endif %} aria-label="Move down">{{ icon('chevron-down') }}</button></form>
+          </span></td>
+        {% for attr, label in res.columns %}
+        {% set v = o[attr] %}
+        <td>{% if loop.first %}<a class="row-title" href="{{ url_for('admin.resource_edit', key=res.key, item_id=o.id) }}">
+              {% if res.key == 'skills' %}<span class="skill-ico">{{ skill_icon(o) }}</span>{% endif %}{{ v }}</a>
+            {% elif v is sameas true %}<span class="pill pill-ok">Yes</span>{% elif v is sameas false %}<span class="muted">No</span>
+            {% else %}<span class="muted">{{ (v or '-') | string | truncate(48) }}</span>{% endif %}</td>
+        {% endfor %}
+        <td>
+          <form method="post" action="{{ url_for('admin.resource_toggle', key=res.key, item_id=o.id) }}" data-toggle-form>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="attr" value="visible">
+            <button type="submit" class="switch {{ 'on' if o.visible }}" role="switch" aria-checked="{{ 'true' if o.visible else 'false' }}" aria-label="Visible"><span></span></button>
+          </form>
+        </td>
+        <td class="col-actions">
+          <a class="icon-btn" href="{{ url_for('admin.resource_edit', key=res.key, item_id=o.id) }}" aria-label="Edit">{{ icon('pencil') }}</a>
+          {% if res.key == 'projects' %}<a class="icon-btn" href="{{ url_for('public.project_detail', slug=o.slug) }}" target="_blank" rel="noopener" aria-label="View">{{ icon('external') }}</a>{% endif %}
+          <form method="post" action="{{ url_for('admin.resource_delete', key=res.key, item_id=o.id) }}" data-confirm="Delete this {{ res.singular | lower }}? This cannot be undone.">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="icon-btn danger" type="submit" aria-label="Delete">{{ icon('trash') }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty-state">
+  <span class="empty-icon">{{ icon(res.icon) }}</span>
+  <h2>No {{ res.label | lower }} yet</h2>
+  <p class="muted">Add your first {{ res.singular | lower }} to show it on your portfolio.</p>
+  <a class="btn btn-primary" href="{{ url_for('admin.resource_edit', key=res.key) }}">{{ icon('plus') }} Add {{ res.singular | lower }}</a>
+</div>
+{% endif %}
+{% endblock %}

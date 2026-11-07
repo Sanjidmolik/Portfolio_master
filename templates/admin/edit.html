@@ -1,0 +1,73 @@
+{% extends "admin/base.html" %}
+{% from "admin/_fields.html" import render_field, icon_datalist, group_nav %}
+{% block title %}{{ 'New' if is_new else 'Edit' }} {{ res.singular }}{% endblock %}
+{% block heading %}
+  <a class="crumb muted" href="{{ url_for('admin.resource_list', key=res.key) }}">{{ icon('arrow-left') }} {{ res.label }}</a>
+  <h1>{{ 'New ' ~ res.singular | lower if is_new else obj[res.title_attr] }}</h1>
+{% endblock %}
+{% block actions %}
+  {% if not is_new and res.key == 'projects' %}<a class="btn btn-ghost btn-sm" href="{{ url_for('public.project_detail', slug=obj.slug) }}" target="_blank" rel="noopener">{{ icon('eye') }} Preview</a>{% endif %}
+{% endblock %}
+{% block content %}
+<form class="pro-form" method="post" enctype="multipart/form-data" novalidate data-pro-form>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {{ icon_datalist(builtin_icons) }}
+  {% if errors %}
+  <div class="error-summary" role="alert" tabindex="-1" data-error-summary>
+    <strong>{{ icon('close') }} {{ errors | length }} field{{ 's' if errors|length != 1 }} need{{ '' if errors|length != 1 else 's' }} attention</strong>
+    <ul>{% for name, msg in errors.items() %}<li><a href="#field-{{ name }}">{{ msg }}</a></li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+  <p class="form-legend muted"><em>*</em> Required field. Each field lists its requirements underneath its name.</p>
+  {% if groups | length > 1 %}{{ group_nav(groups) }}{% endif %}
+  {% for title, desc, fields in groups %}
+  <fieldset class="card form-section" id="grp-{{ loop.index }}">
+    <legend class="sr-only">{{ title }}</legend>
+    <header class="section-header">
+      <span class="step mono">{{ '%02d' % loop.index }}</span>
+      <div><h2>{{ title }}</h2>{% if desc %}<p class="muted">{{ desc }}</p>{% endif %}</div>
+    </header>
+    <div class="form-grid">
+      {% for f in fields %}{{ render_field(f, obj, errors, builtin_icons, limits, res.key == 'socials') }}{% endfor %}
+    </div>
+  </fieldset>
+  {% endfor %}
+  <div class="save-bar">
+    <span class="save-bar-status muted" data-dirty-status>All changes saved</span>
+    <a class="btn btn-ghost" href="{{ url_for('admin.resource_list', key=res.key) }}">Cancel</a>
+    {% if not is_new %}<button class="btn btn-ghost" type="submit" name="_continue" value="1">Save &amp; keep editing</button>{% endif %}
+    <button class="btn btn-primary" type="submit">{{ icon('check') }} {{ 'Create ' ~ res.singular | lower if is_new else 'Save changes' }}</button>
+  </div>
+</form>
+
+{% if res.key == 'projects' and not is_new %}
+<section class="card form-card" id="gallery">
+  <header class="panel-head"><h2>{{ icon('image') }} Gallery</h2><span class="muted">{{ obj.images | length }} image(s)</span></header>
+  <form class="gallery-upload" method="post" action="{{ url_for('admin.project_images_upload', pid=obj.id) }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="file" name="images" accept="image/png,image/jpeg,image/webp,image/gif" multiple required>
+    <button class="btn btn-primary btn-sm" type="submit">{{ icon('plus') }} Upload screenshots</button>
+    <p class="hint">Up to 12 images at a time, 6 MB each.</p>
+  </form>
+  {% if obj.images %}
+  <ul class="admin-gallery">
+    {% for img in obj.images %}
+    <li class="card">
+      <img src="{{ url_for('static', filename=img.path) }}" alt="" loading="lazy">
+      {% if obj.thumbnail == img.path %}<span class="pill pill-ok cover-pill">Thumbnail</span>{% endif %}
+      <form method="post" action="{{ url_for('admin.project_image_update', pid=obj.id, img_id=img.id) }}" class="gallery-ctl">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input name="caption" value="{{ img.caption }}" placeholder="Caption" maxlength="200" aria-label="Caption">
+        <div class="row">
+          <button class="btn btn-ghost btn-xs" name="action" value="caption">Save</button>
+          <button class="btn btn-ghost btn-xs" name="action" value="cover">Use as thumbnail</button>
+          <button class="btn btn-ghost btn-xs danger" name="action" value="delete" data-confirm-btn="Remove this image?">{{ icon('trash') }}</button>
+        </div>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

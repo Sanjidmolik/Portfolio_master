@@ -1,0 +1,62 @@
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+    {% include "public/_connect_banner.html" %}
+    <div class="contact-grid">
+      <div class="contact-side">
+        {% if content.contact_lead %}<p class="contact-lead">{{ content.contact_lead }}</p>{% endif %}
+        <ul class="contact-cards">
+          {% if profile.email %}
+          <li class="contact-card card">
+            <span class="cc-icon">{{ icon('mail') }}</span>
+            <div><p class="mono cc-label">EMAIL</p><a href="mailto:{{ profile.email }}">{{ profile.email }}</a></div>
+            <button type="button" class="icon-btn" data-copy="{{ profile.email }}" aria-label="Copy email address">{{ icon('copy') }}</button>
+          </li>
+          {% endif %}
+          {% if profile.phone %}
+          <li class="contact-card card"><span class="cc-icon">{{ icon('phone') }}</span>
+            <div><p class="mono cc-label">PHONE</p><a href="tel:{{ profile.phone | replace(' ', '') }}">{{ profile.phone }}</a></div></li>
+          {% endif %}
+          {% if profile.location %}
+          <li class="contact-card card"><span class="cc-icon">{{ icon('map-pin') }}</span>
+            <div><p class="mono cc-label">LOCATION</p><p>{{ profile.location }}</p></div></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <form class="contact-form card" method="post" action="{{ url_for('public.contact') }}" data-contact-form novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="form-head mono"><span class="tally"></span> {{ content.contact_form_heading }}</div>
+        <div class="field-row">
+          <div class="field">
+            <input id="cf-name" name="name" type="text" required minlength="2" maxlength="120" autocomplete="name" placeholder=" ">
+            <label for="cf-name">{{ content.contact_name_label }}</label>
+            <p class="field-error" data-error-for="name" role="alert"></p>
+          </div>
+          <div class="field">
+            <input id="cf-email" name="email" type="email" required maxlength="200" autocomplete="email" placeholder=" ">
+            <label for="cf-email">{{ content.contact_email_label }}</label>
+            <p class="field-error" data-error-for="email" role="alert"></p>
+          </div>
+        </div>
+        <div class="field">
+          <input id="cf-subject" name="subject" type="text" maxlength="200" placeholder=" ">
+          <label for="cf-subject">{{ content.contact_subject_label }}</label>
+          <p class="field-error" data-error-for="subject" role="alert"></p>
+        </div>
+        <div class="field">
+          <textarea id="cf-message" name="message" rows="6" required minlength="10" maxlength="5000" placeholder=" "></textarea>
+          <label for="cf-message">{{ content.contact_message_label }}</label>
+          <p class="field-error" data-error-for="message" role="alert"></p>
+        </div>
+        <div class="form-foot">
+          <button class="btn btn-primary" type="submit" data-submit>
+            <span class="btn-label" data-label="{{ content.contact_button }}">{{ content.contact_button }}</span><span class="btn-spinner" aria-hidden="true"></span>{{ icon('send') }}
+          </button>
+          <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

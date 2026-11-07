@@ -1,0 +1,102 @@
+{% set kinds = timeline | map(attribute='kind') | unique | list %}
+{% set lead, body = profile.about_parts %}
+{% set stack = skills | selectattr('category', 'eq', 'Programming') | list %}
+{% set photo = profile.avatar or profile.hero_image %}
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+
+    <div class="ab-grid">
+      {# ---------- Profile card ---------- #}
+      <aside class="ab-card card" data-reveal aria-label="Profile summary">
+        <div class="ab-id">
+          <span class="ab-photo">
+            {% if photo %}<img src="{{ url_for('static', filename=photo) }}" alt="" width="72" height="72" loading="lazy" decoding="async">
+            {% else %}{% set uid = 'about' %}{% include "public/_avatar_art.html" %}{% endif %}
+            {% if access.on_duty %}<span class="ab-live" title="Currently working"></span>{% endif %}
+          </span>
+          <div>
+            <h3 class="ab-name">{{ profile.full_name }}</h3>
+            {% if access.role %}<p class="ab-role">{{ access.role }}{% if access.station %} <span>@ {{ access.station }}</span>{% endif %}</p>{% endif %}
+          </div>
+        </div>
+
+        <dl class="ab-facts">
+          {% if access.since %}
+          <div><dt>{{ icon('broadcast') }}{{ content.about_since_label }}</dt><dd>{{ access.since }}{% if content.about_since_sub %} <small>{{ content.about_since_sub }}</small>{% endif %}</dd></div>
+          {% endif %}
+          {% if content.about_tile_value %}
+          <div><dt>{{ icon('signal') }}{{ content.about_tile_label }}</dt><dd>{{ content.about_tile_value }}{% if content.about_tile_sub %} <small>{{ content.about_tile_sub }}</small>{% endif %}</dd></div>
+          {% endif %}
+          {% if access.study %}
+          <div><dt>{{ icon('graduation') }}{{ content.about_study_label }}</dt><dd>{{ access.degree }} <small>{{ access.study }}</small></dd></div>
+          {% endif %}
+          {% if profile.location %}
+          <div><dt>{{ icon('map-pin') }}{{ content.pass_base_label }}</dt><dd>{{ profile.location }}</dd></div>
+          {% endif %}
+        </dl>
+
+        {% if stack %}
+        <div class="ab-stack">
+          <p class="ab-label mono">{{ content.about_stack_label }}</p>
+          <span class="stack-chips">{% for s in stack[:6] %}<span class="stack-chip">{{ skill_icon(s) }}{{ s.name }}</span>{% endfor %}</span>
+        </div>
+        {% endif %}
+
+        <div class="ab-actions">
+          {% if profile.resume %}<a class="btn btn-primary btn-sm" href="{{ url_for('public.resume') }}" target="_blank" rel="noopener">{{ icon('download') }} {{ content.hero_cv_label or 'CV' }}</a>{% endif %}
+          <a class="btn btn-ghost btn-sm" href="#contact">{{ icon('mail') }} {{ content.hero_cta_secondary }}</a>
+        </div>
+      </aside>
+
+      {# ---------- Story ---------- #}
+      <div class="ab-story">
+        {% if lead %}<p class="ab-lead" data-reveal>{{ lead | highlight }}</p>{% endif %}
+        <div class="ab-body">
+          {% for p in body %}<p data-reveal style="--i:{{ loop.index0 }}">{{ p | highlight }}</p>{% endfor %}
+        </div>
+
+        <ul class="ab-focus" aria-label="Focus areas" data-reveal>
+          {% for i in range(1, 5) %}{% if content['focus%d_title' % i] %}
+          <li><span class="ab-focus-icon">{{ any_icon(content['focus%d_icon' % i]) }}</span>
+            <span><strong>{{ content['focus%d_title' % i] }}</strong><small>{{ content['focus%d_text' % i] }}</small></span></li>
+          {% endif %}{% endfor %}
+        </ul>
+
+        {% if profile.career_goals %}
+        <blockquote class="ab-goal" data-reveal>
+          <p class="ab-label mono">{{ icon('sparkles') }} {{ content.about_goal_label }}</p>
+          <p>{{ profile.career_goals | highlight }}</p>
+        </blockquote>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if timeline %}
+    <div class="journey" data-journey>
+      <div class="journey-head" data-reveal>
+        <h3 class="journey-title">{{ content.about_journey_title }}</h3>
+        {% if kinds | length > 1 %}
+        <div class="chip-filter" role="group" aria-label="Filter journey">
+          <button type="button" class="chip is-active" data-filter="all" aria-pressed="true">All</button>
+          {% for k in kinds %}<button type="button" class="chip" data-filter="{{ k }}" aria-pressed="false">{{ k | title }}</button>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <ol class="timeline" data-timeline>
+        <span class="timeline-track" aria-hidden="true"><span class="timeline-progress"></span></span>
+        {% for e in timeline %}
+        <li class="tl-item kind-{{ e.kind }}" data-kind="{{ e.kind }}" data-reveal style="--i:{{ loop.index0 % 3 }}">
+          <span class="tl-node" aria-hidden="true">{{ icon(e.kind) }}</span>
+          <div class="tl-card card">
+            <p class="tl-period mono">{{ e.period }}</p>
+            <h4>{{ e.title }}</h4>
+            {% if e.description %}<p>{{ e.description }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,197 @@
+{%- set roles = (profile.titles or [profile.headline])[:4] -%}
+{%- set portrait = profile.hero_image or profile.avatar -%}
+<section class="hero hv" id="hero" aria-labelledby="hero-name">
+
+  {#- ============ Background scene (decorative) ============ -#}
+  <div class="hv-scene" aria-hidden="true">
+    <div class="hv-stars"></div>
+    <div class="hv-glow g1"></div><div class="hv-glow g2"></div>
+    <div class="hv-earth"></div>
+
+    {# transmission tower, far left #}
+    <svg class="hv-tower" viewBox="0 0 120 520" preserveAspectRatio="xMidYMax meet">
+      <g stroke="currentColor" stroke-width="2" fill="none">
+        <path d="M60 30 L28 510 M60 30 L92 510"/>
+        {% for y in range(70, 510, 34) %}{% set w = (y - 30) * 32 / 480 %}
+        <path d="M{{ 60 - w }} {{ y }} L{{ 60 + w }} {{ y }} M{{ 60 - w }} {{ y }} L{{ 60 + w + 2.2 }} {{ y + 34 }} M{{ 60 + w }} {{ y }} L{{ 60 - w - 2.2 }} {{ y + 34 }}"/>
+        {% endfor %}
+        <path d="M60 30 V4"/>
+      </g>
+      <circle class="hv-beacon" cx="60" cy="6" r="5"/>
+      <circle class="hv-beacon b2" cx="60" cy="150" r="3.5"/>
+    </svg>
+
+    {# city skyline, bottom left #}
+    <svg class="hv-city" viewBox="0 0 600 160" preserveAspectRatio="xMinYMax slice">
+      {% for b in [(0,70,40),(44,110,36),(84,60,50),(138,130,30),(172,90,44),(220,140,26),(250,80,56),(310,120,34),(348,70,48),(400,100,30),(434,60,44),(482,90,38),(524,50,46)] %}
+      <rect x="{{ b[0] }}" y="{{ 160 - b[1] }}" width="{{ b[2] }}" height="{{ b[1] }}" class="bld"/>
+      {% for wy in range(160 - b[1] + 8, 156, 12) %}{% for wx in range(b[0] + 5, b[0] + b[2] - 4, 9) %}
+        {% if (wx * 7 + wy * 3) % 5 < 2 %}<rect x="{{ wx }}" y="{{ wy }}" width="3" height="4" class="win"/>{% endif %}
+      {% endfor %}{% endfor %}
+      {% endfor %}
+    </svg>
+
+    {# satellite dish #}
+    <svg class="hv-dish" viewBox="0 0 140 140">
+      <g class="hv-dish-rot">
+        <ellipse cx="70" cy="60" rx="52" ry="30" transform="rotate(-28 70 60)" class="dish-face"/>
+        <ellipse cx="70" cy="60" rx="40" ry="21" transform="rotate(-28 70 60)" class="dish-rim"/>
+        <path d="M70 60 L102 30" class="dish-arm"/><circle cx="103" cy="29" r="4" class="dish-feed"/>
+      </g>
+      <path d="M70 72 L60 128 M70 72 L84 128 M54 128 H92" class="dish-stand"/>
+    </svg>
+
+    {# satellite #}
+    <svg class="hv-sat" viewBox="0 0 220 140">
+      <g transform="rotate(-24 110 70)">
+        {% for side in [0, 1] %}{% set x0 = 8 if side == 0 else 134 %}
+        <rect x="{{ x0 }}" y="52" width="78" height="36" rx="3" class="sat-panel"/>
+        {% for i in range(1, 6) %}<path d="M{{ x0 + i * 13 }} 52 V88" class="sat-grid"/>{% endfor %}
+        <path d="M{{ x0 }} 70 H{{ x0 + 78 }}" class="sat-grid"/>
+        {% endfor %}
+        <path d="M86 70 H134" class="sat-arm"/>
+        <rect x="94" y="50" width="32" height="40" rx="6" class="sat-body"/>
+        <circle cx="110" cy="70" r="7" class="sat-eye"/>
+      </g>
+    </svg>
+
+    {# monitor wall #}
+    <div class="hv-wall-wrap">
+      <svg class="hv-wall" viewBox="0 0 900 520" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16305f"/><stop offset="1" stop-color="#0a1630"/></linearGradient>
+          <linearGradient id="scr2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4fa8"/><stop offset="1" stop-color="#0d2350"/></linearGradient>
+        </defs>
+        {% for row in range(5) %}{% for col in range(7) %}
+          {% set x = 14 + col * 126 %}{% set y = 12 + row * 100 %}{% set k = (row * 7 + col * 3) % 6 %}
+          <g class="scr-g">
+            <rect x="{{ x }}" y="{{ y }}" width="116" height="88" rx="4" fill="url(#{{ 'scr2' if k in (1, 4) else 'scr' }})" class="scr"/>
+            {% if k == 0 %}
+              <circle cx="{{ x + 58 }}" cy="{{ y + 34 }}" r="11" class="sc-a"/><path d="M{{ x + 34 }} {{ y + 88 }} q24 -36 48 0 z" class="sc-a"/>
+              <rect x="{{ x + 6 }}" y="{{ y + 68 }}" width="104" height="10" class="sc-bar"/>
+            {% elif k == 1 %}
+              {% for d in range(14) %}<circle cx="{{ x + 12 + (d * 37) % 92 }}" cy="{{ y + 16 + (d * 23) % 58 }}" r="{{ 2 + d % 3 }}" class="sc-dot"/>{% endfor %}
+            {% elif k == 2 %}
+              {% for d in range(8) %}<rect x="{{ x + 10 + d * 12 }}" y="{{ y + 78 - (12 + (d * 17) % 50) }}" width="7" height="{{ 12 + (d * 17) % 50 }}" class="sc-b"/>{% endfor %}
+            {% elif k == 3 %}
+              <rect x="{{ x + 6 }}" y="{{ y + 10 }}" width="50" height="66" class="sc-c"/><rect x="{{ x + 60 }}" y="{{ y + 10 }}" width="50" height="66" class="sc-c2"/>
+            {% elif k == 4 %}
+              <path d="M{{ x + 4 }} {{ y + 44 }} q14 -24 28 0 t28 0 t28 0 t28 0" class="sc-w"/>
+            {% else %}
+              {% for d in range(5) %}<rect x="{{ x + 8 }}" y="{{ y + 12 + d * 14 }}" width="{{ 40 + (d * 29) % 60 }}" height="5" rx="2" class="sc-t"/>{% endfor %}
+            {% endif %}
+          </g>
+        {% endfor %}{% endfor %}
+      </svg>
+      {% if content.hero_scene_sign %}<div class="hv-onair">{{ content.hero_scene_sign }}</div>{% endif %}
+    </div>
+
+    {# operator silhouette + console #}
+    <svg class="hv-operator" viewBox="0 0 200 220">
+      <circle cx="100" cy="62" r="34" class="op"/>
+      <path d="M60 64 a40 40 0 0 1 80 0" class="op-hs" fill="none"/>
+      <rect x="52" y="58" width="12" height="22" rx="5" class="op-hs-cup"/>
+      <path d="M30 220 C34 150 62 112 100 108 C138 112 166 150 170 220 Z" class="op"/>
+    </svg>
+    <svg class="hv-console" viewBox="0 0 1000 220" preserveAspectRatio="none">
+      <path d="M0 40 L1000 0 L1000 220 L0 220 Z" class="desk"/>
+      <path d="M0 40 L1000 0" class="desk-edge"/>
+      {% for r in range(4) %}{% for c in range(34) %}
+        {% set k = (r * 13 + c * 7) % 9 %}
+        <rect x="{{ 30 + c * 28 + r * 6 }}" y="{{ 52 - c * 1.1 + r * 34 }}" width="18" height="12" rx="3"
+              class="key k{{ k }} {{ 'blink' if (r + c) % 11 == 0 }}"/>
+      {% endfor %}{% endfor %}
+    </svg>
+    <div class="hv-vignette"></div>
+  </div>
+
+  {#- ============ Content ============ -#}
+  <div class="container hv-grid">
+    <div class="hv-copy">
+      <div class="hv-live hero-in" style="--d:0">
+        <span class="hv-live-pill mono"><span class="tally"></span><strong>{{ content.hero_badge }}</strong>
+          {% if content.hero_badge_sub %}<span class="sep"></span><span>{{ content.hero_badge_sub }}</span>{% endif %}</span>
+        <span class="hv-meter" aria-hidden="true">{% for i in range(22) %}<i style="--i:{{ i }}"></i>{% endfor %}</span>
+      </div>
+
+      <p class="hv-hello hero-in" style="--d:1">{{ content.hero_greeting }}</p>
+      <h1 class="hero-name hv-name" id="hero-name" aria-label="{{ profile.full_name }}">
+        <svg class="hv-swoosh" viewBox="0 0 800 260" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="swg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--secondary)" stop-opacity="0"/><stop offset=".25" stop-color="var(--secondary)"/>
+            <stop offset=".7" stop-color="var(--primary)"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>
+          <path class="sw-back" d="M40 150 C 160 40, 560 10, 760 70"/>
+          <path class="sw-front" d="M10 190 C 120 260, 520 250, 790 120"/>
+        </svg>
+        {%- set ns = namespace(i=0) -%}
+        {%- for word in profile.full_name.split(' ') -%}
+          <span class="word" aria-hidden="true">
+            {%- for ch in word -%}<span class="char" style="--i:{{ ns.i }}">{{ ch }}</span>{%- set ns.i = ns.i + 1 -%}{%- endfor -%}
+          </span>{{ ' ' }}
+        {%- endfor -%}
+      </h1>
+
+      {% if roles %}
+      <ul class="hv-roles hero-in" style="--d:3">
+        {% for r in roles %}<li>{{ any_icon(content['hero_role%d_icon' % loop.index]) }}<span>{{ r }}</span></li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      <p class="hv-intro hero-in" style="--d:4">{{ profile.short_intro }}</p>
+
+      <div class="hv-ctas hero-in" style="--d:5">
+        <a class="btn btn-primary hv-btn" href="{{ '#projects' if available.projects else url_for('public.projects') }}" data-magnetic>
+          <span class="hv-play">{{ icon('play') }}</span>{{ content.hero_cta_primary }} {{ icon('arrow-right') }}
+        </a>
+        <a class="btn btn-ghost hv-btn" href="#contact" data-magnetic>{{ icon('mail') }} {{ content.hero_cta_secondary }}</a>
+        {% if profile.resume %}
+        <a class="btn btn-link" href="{{ url_for('public.resume') }}" target="_blank" rel="noopener">{{ icon('download') }} {{ content.hero_cv_label or 'CV' }}</a>
+        {% endif %}
+      </div>
+
+      {% set stats = [] %}{% for i in range(1, 4) %}{% if content['hero_stat%d_title' % i] %}{% set _ = stats.append(i) %}{% endif %}{% endfor %}
+      {% if stats %}
+      <ul class="hv-stats hero-in" style="--d:6">
+        {% for i in stats %}
+        <li><span class="hv-stat-icon">{{ any_icon(content['hero_stat%d_icon' % i]) }}</span>
+          <span><strong>{{ content['hero_stat%d_title' % i] }}</strong><small>{{ content['hero_stat%d_sub' % i] }}</small></span></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% if socials %}
+      <ul class="hv-socials hero-in" style="--d:7" aria-label="Social profiles">
+        {% for s in socials %}<li><a href="{{ s.url }}" {% if not s.url.startswith('mailto:') %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ s.label or s.platform|title }}">{{ icon(s.platform) }}</a></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div class="hv-figure hero-in" style="--d:2" data-parallax>
+      <svg class="hv-orbit back" viewBox="0 0 600 600" aria-hidden="true"><ellipse cx="300" cy="300" rx="270" ry="250"/></svg>
+      {% if portrait %}
+        <img class="hv-portrait {{ 'is-cutout' if profile.hero_image else 'is-photo' }}" src="{{ url_for('static', filename=portrait) }}"
+             alt="Portrait of {{ profile.full_name }}" width="450" height="557" fetchpriority="high" decoding="async">
+      {% else %}
+        <div class="hv-portrait is-art">{% set uid = 'hero' %}{% include "public/_avatar_art.html" %}</div>
+      {% endif %}
+      <svg class="hv-orbit front" viewBox="0 0 600 600" aria-hidden="true"><path d="M40 420 C 120 560, 420 600, 580 380"/></svg>
+
+      {% if access.station and access.on_duty %}
+      <div class="hv-current">
+        <p class="hv-current-label"><span class="tally"></span>{{ content.hero_current_label }}</p>
+        <div class="hv-current-row">
+          <strong class="hv-station">{{ access.station }}</strong>
+          <span class="hv-current-role"><strong>{{ access.role }}</strong>
+            {% if access.current_since %}<small>{{ content.hero_since_label }} {{ access.current_since }}</small>{% endif %}</span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <a class="hv-scroll" href="#{{ (nav_sections | selectattr('enabled') | first or {'key':'contact'}).key }}" aria-label="{{ content.hero_scroll }}">
+    <span class="mouse"><span class="wheel"></span></span>
+    <span class="hv-scroll-text">{{ icon('chevrons-down') }}{{ content.hero_scroll }}{{ icon('chevrons-down') }}</span>
+  </a>
+  {% if content.hero_tagline %}<p class="hv-tagline mono" aria-hidden="true">{{ content.hero_tagline }}</p>{% endif %}
+</section>

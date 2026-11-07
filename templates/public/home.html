@@ -1,0 +1,11 @@
+{% extends "public/base.html" %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+  {% for s in page_sections %}
+    {% set section = s %}
+    {% set channel = '%02d' % loop.index0 %}
+    <div class="section-slot" data-section-key="{{ s.key }}" {% if not s.enabled %}hidden{% endif %}>
+      {% include "public/sections/" ~ s.key ~ ".html" %}
+    </div>
+  {% endfor %}
+{% endblock %}

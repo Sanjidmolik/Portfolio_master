@@ -1,0 +1,35 @@
+<section class="section skills" id="skills" aria-labelledby="skills-title">
+  <div class="container">
+    {% include "public/_section_head.html" %}
+    {% if skill_categories | length > 1 %}
+    <div class="chip-filter skills-filter" role="group" aria-label="Filter skills by category" data-reveal>
+      <button type="button" class="chip is-active" data-skill-filter="all" aria-pressed="true">All <span class="count">{{ skills|length }}</span></button>
+      {% for c in skill_categories %}
+      <button type="button" class="chip" data-skill-filter="{{ c }}" aria-pressed="false">{{ c }} <span class="count">{{ skills | selectattr('category', 'eq', c) | list | length }}</span></button>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <ul class="skill-grid" data-skill-grid>
+      {% for s in skills %}
+      <li class="skill-card card" data-category="{{ s.category }}" data-reveal style="--i:{{ loop.index0 % 6 }}" data-tilt data-spotlight>
+        <span class="skill-icon">{{ skill_icon(s) }}</span>
+        <div class="skill-info">
+          <h3>{{ s.name }}</h3>
+          <p class="skill-cat mono">{{ s.category }}</p>
+        </div>
+        {% if s.description or s.proficiency or s.years %}
+        <div class="skill-more">
+          {% if s.description %}<p>{{ s.description }}</p>{% endif %}
+          {% if s.proficiency or s.years %}
+          <p class="skill-badges mono">
+            {% if s.proficiency %}<span class="badge">{{ s.proficiency }}</span>{% endif %}
+            {% if s.years %}<span class="badge">{{ '%g' % s.years }} yr{{ 's' if s.years != 1 }}</span>{% endif %}
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
